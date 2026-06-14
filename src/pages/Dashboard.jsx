@@ -5,6 +5,7 @@ import { useConditions } from '../hooks/useConditions.js'
 import { db } from '../db/db.js'
 import { edgeNow } from '../engine/personalEdge.js'
 import { oneAnswer, answerCountdown, sinceLastLook } from '../engine/headline.js'
+import { armAlerts } from '../services/notify.js'
 import ScoreRing from '../components/ScoreRing.jsx'
 import FactorList from '../components/FactorList.jsx'
 import TideCurve from '../components/TideCurve.jsx'
@@ -37,6 +38,7 @@ export default function Dashboard() {
       }
       if (!prev || age >= 40 * 60000) localStorage.setItem('ka_lastlook', JSON.stringify({ ...cur, at: Date.now() }))
     } catch { /* private mode / no storage — skip the delta */ }
+    armAlerts(data).catch(() => {}) // re-arm today's bite alerts (no-op unless opted in)
   }, [data])
 
   if (loading) return <Skeleton />

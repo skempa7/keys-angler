@@ -6,14 +6,24 @@ import { evictSource } from '../services/cache.js'
 import { downloadICS, seasonReminderEvents, gatewayStatus, TOURNAMENTS_SAMPLE } from '../services/phase2.js'
 import OfflineButton from '../components/OfflineButton.jsx'
 import { db } from '../db/db.js'
+import { notifyPermission, notifyEnabled, setNotifyEnabled, requestNotify, sendTest, triggersSupported } from '../services/notify.js'
 
 export default function Settings() {
   const loc = useActiveLocation()
   const { theme, setTheme } = useTheme()
   const [form, setForm] = useState({ name: loc.name, lat: loc.lat, lon: loc.lon, radiusNm: loc.radiusNm || 30 })
   const [msg, setMsg] = useState('')
+  const [notif, setNotif] = useState(() => ({ perm: notifyPermission(), enabled: notifyEnabled() }))
 
   const note = (t) => { setMsg(t); setTimeout(() => setMsg(''), 2500) }
+
+  const enableAlerts = async () => {
+    const p = await requestNotify()
+    if (p === 'granted') { setNotifyEnabled(true); setNotif({ perm: p, enabled: true }); sendTest(); note('Alerts on — sent you a test.') }
+    else { setNotif({ perm: p, enabled: false }); note(p === 'denied' ? 'Notifications are blocked in your browser settings.' : 'Could not enable alerts.') }
+  }
+  const disableAlerts = () => { setNotifyEnabled(false); setNotif((s) => ({ ...s, enabled: false })); note('Alerts off.') }
+  const testAlert = async () => { const ok = await sendTest(); note(ok ? 'Test alert sent.' : 'Could not send a test.') }
 
   const saveLoc = async () => {
     await setActiveLocation({ name: form.name, lat: Number(form.lat), lon: Number(form.lon), radiusNm: Number(form.radiusNm), label: form.name })
@@ -65,6 +75,29 @@ export default function Settings() {
         <div className="divider" />
         <button className="btn ghost block" onClick={refreshData}>Clear cached conditions (force refresh)</button>
         <button className="btn ghost block" onClick={clearPersonal} style={{ color: 'var(--bad)' }}>Delete my catches, spots & gear</button>
+      </div>
+
+      <div className="card stack-sm">
+        <div className="eyebrow">Bite alerts</div>
+        {notif.perm === 'unsupported' ? (
+          <p className="muted" style={{ fontSize: 13 }}>This device or browser doesn’t support notifications.</p>
+        ) : notif.enabled && notif.perm === 'granted' ? (
+          <>
+            <div className="row between">
+              <span style={{ fontWeight: 650, color: 'var(--good)' }}>Alerts on</span>
+              <button className="chip" onClick={disableAlerts}>Turn off</button>
+            </div>
+            <button className="btn ghost block" onClick={testAlert}>Send a test alert</button>
+          </>
+        ) : (
+          <button className="btn primary block" onClick={enableAlerts}>Turn on bite alerts</button>
+        )}
+        <p className="faint" style={{ fontSize: 12 }}>
+          A morning go/no-go and a heads-up ~30&nbsp;min before prime bite windows.{' '}
+          {triggersSupported()
+            ? 'This device can deliver them even when the app is closed (today’s windows).'
+            : 'On this device they arrive while the app is open or recently used — on iPhone, add Keys Angler to your Home Screen for the best shot. There’s no server behind the app, so delivery while it’s fully closed isn’t guaranteed.'}
+        </p>
       </div>
 
       <div className="card stack-sm">
