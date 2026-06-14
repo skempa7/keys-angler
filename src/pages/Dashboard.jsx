@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom'
+import { useLiveQuery } from 'dexie-react-hooks'
 import { useConditions } from '../hooks/useConditions.js'
+import { db } from '../db/db.js'
+import { edgeNow } from '../engine/personalEdge.js'
 import ScoreRing from '../components/ScoreRing.jsx'
 import FactorList from '../components/FactorList.jsx'
 import TideCurve from '../components/TideCurve.jsx'
@@ -14,11 +17,13 @@ import { IcStorm } from '../components/icons.jsx'
 
 export default function Dashboard() {
   const { data, loading, error, refreshing, online, refresh } = useConditions({ days: 5 })
+  const catches = useLiveQuery(() => db.catches.toArray(), [], [])
 
   if (loading) return <Skeleton />
   if (error && !data) return <ErrorState error={error} onRetry={refresh} />
 
   const { nowScore, nowConditions: c, tideNow, alerts, today, outlook, nextWindow, sources, stormToday, buoy, marineForecast } = data
+  const edge = edgeNow(catches || [], tideNow)
   const tone = nowScore.verdict.tone
   const best = today.windows[0]
   const fetchedAts = Object.values(sources).map((s) => s.fetchedAt).filter(Boolean)
@@ -84,6 +89,20 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      {edge && (
+        <div className="card stack-sm">
+          <div className="row between">
+            <div className="eyebrow">Your edge</div>
+            {edge.match && <span className="tag bg-good" style={{ color: 'var(--good)' }}>Pattern ON</span>}
+          </div>
+          <div className="h2">{edge.match ? `Your ${edge.pattern.species} bite is dialed in` : `${edge.pattern.species}: you favor the ${edge.pattern.dir} tide`}</div>
+          <div className="muted" style={{ fontSize: 13 }}>
+            You've boated {edge.pattern.species.toLowerCase()} on the {edge.pattern.dir} tide {edge.pattern.hits} of {edge.pattern.total} times.{' '}
+            {edge.currentDir ? (edge.match ? `It's ${edge.currentDir} right now — go.` : `Tide is ${edge.currentDir} now; your window is the ${edge.pattern.dir}.`) : ''}
+          </div>
+        </div>
+      )}
 
       <div className="card stack-sm">
         <div className="row between">

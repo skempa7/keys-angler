@@ -7,7 +7,7 @@ import { fetchMarine, fetchWeather, sampleHourly, pressureTrend, stormOutlook } 
 import { fetchAlerts, parseAlerts, fetchMarineForecastText, fetchBuoy } from './nws.js'
 import { OBS_STATIONS, tideStation, distanceNm } from '../data/stations.js'
 import { parseHiLo, eventsForDay, tideStateAt } from '../engine/tideStage.js'
-import { solunarDay } from '../engine/solunar.js'
+import { solunarDay, activePeriodAt } from '../engine/solunar.js'
 import { buildBiteWindows } from '../engine/biteWindows.js'
 import { computeMomentScore } from '../engine/score.js'
 
@@ -120,6 +120,7 @@ export async function loadConditions({ lat, lon, station, zones, days = 4, when 
     lon,
     nowScore,
     nowConditions: sampleConditions(marineJson, wxJson, when),
+    pressureTrend: wxJson ? pressureTrend(wxJson, when) : null,
     tideNow: today.tideEvents.length ? tideStateAt(today.tideEvents, when) : null,
     tideStation: tideStationInfo,
     alerts,
@@ -139,4 +140,25 @@ export async function primeOffline({ lat, lon, station, zones }) {
   const res = await loadConditions({ lat, lon, station, zones, days: 7, when: new Date(), forceFresh: true })
   const sources = res.sources
   return { ok: Object.values(sources).filter((s) => s.ok).length, total: Object.keys(sources).length, sources }
+}
+
+// Full live-condition snapshot for one-tap catch logging — captures the WHY, not just the what.
+export function snapshotFromConditions(data, coords) {
+  const c = data?.nowConditions || {}
+  const t = data?.tideNow
+  const sol = data?.today?.solunar
+  const active = sol ? activePeriodAt(sol, data.when) : null
+  return {
+    lat: coords?.lat ?? null,
+    lon: coords?.lon ?? null,
+    tide: t ? t.direction.charAt(0).toUpperCase() + t.direction.slice(1) : '',
+    moonPhase: sol?.moon?.phaseName ?? null,
+    solunarType: active ? active.period.type : null,
+    cond: {
+      windKn: c.windKn ?? null, gustKn: c.gustKn ?? null, windDir: c.windDir ?? null,
+      waveFt: c.waveFt ?? null, sstF: c.sstF ?? null,
+      pressure: c.pressure ?? null, pressureTrend: data?.pressureTrend ?? null,
+      tideDir: t?.direction ?? null, tideFlow: t?.flow != null ? Math.round(t.flow * 100) / 100 : null,
+    },
+  }
 }

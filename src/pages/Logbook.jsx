@@ -1,4 +1,7 @@
+import { useLiveQuery } from 'dexie-react-hooks'
 import { useRewards } from '../hooks/useRewards.js'
+import { db } from '../db/db.js'
+import { calibration } from '../engine/personalEdge.js'
 import { fmtDateShort } from '../utils/format.js'
 import { IcTrophy, IcFish, IcStar, IcWaves, IcMap, IcMedal, IcHook, IcPin } from '../components/icons.jsx'
 
@@ -11,6 +14,8 @@ const BADGE_ICON = {
 export default function Logbook() {
   const r = useRewards()
   const c = r.counts
+  const catches = useLiveQuery(() => db.catches.toArray(), [], [])
+  const cal = calibration(catches || [])
   return (
     <div className="stack">
       <header className="page-head">
@@ -28,6 +33,14 @@ export default function Logbook() {
           {r.nextRank ? `${r.nextAt - r.xp} XP to ${r.nextRank}` : 'Top rank — Conch 🐚'}
         </div>
       </div>
+
+      {cal && (
+        <div className="card stack-sm">
+          <div className="eyebrow">Calibration · does the score track your fish?</div>
+          <div className="rank-name">{cal.avg}<span className="faint" style={{ fontSize: 18 }}> /100 avg at your catches</span></div>
+          <div className="muted" style={{ fontSize: 13 }}>{cal.pctGood}% of your {cal.n} score-stamped catches landed in a Good-or-better window (60+). The more you log, the more the score earns its keep on your water.</div>
+        </div>
+      )}
 
       <div className="grid cols-2">
         <div className="card stat"><div className="eyebrow">Catches</div><div className="stat-main">{c.catches}</div></div>
