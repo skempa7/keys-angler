@@ -1,8 +1,10 @@
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useConditions } from '../hooks/useConditions.js'
 import { db } from '../db/db.js'
 import { edgeNow } from '../engine/personalEdge.js'
+import { oneAnswer, answerCountdown, sinceLastLook } from '../engine/headline.js'
 import ScoreRing from '../components/ScoreRing.jsx'
 import FactorList from '../components/FactorList.jsx'
 import TideCurve from '../components/TideCurve.jsx'
@@ -18,12 +20,32 @@ import { IcStorm, IcWaves } from '../components/icons.jsx'
 export default function Dashboard() {
   const { data, loading, error, refreshing, online, refresh } = useConditions({ days: 5 })
   const catches = useLiveQuery(() => db.catches.toArray(), [], [])
+  const [tick, setTick] = useState(() => Date.now())
+  const [delta, setDelta] = useState(null)
+  const looked = useRef(false)
+  useEffect(() => { const id = setInterval(() => setTick(Date.now()), 30000); return () => clearInterval(id) }, [])
+  useEffect(() => {
+    if (looked.current || !data) return
+    looked.current = true
+    const cur = { score: data.nowScore?.score, windKn: data.nowConditions?.windKn, waveFt: data.nowConditions?.waveFt, sstF: data.nowConditions?.sstF, storm: data.stormToday?.level }
+    try {
+      const prev = JSON.parse(localStorage.getItem('ka_lastlook') || 'null')
+      const age = prev ? Date.now() - prev.at : Infinity
+      if (prev && age >= 40 * 60000 && age <= 48 * 3600e3) {
+        const phrases = sinceLastLook(prev, cur)
+        if (phrases) setDelta({ phrases, at: prev.at })
+      }
+      if (!prev || age >= 40 * 60000) localStorage.setItem('ka_lastlook', JSON.stringify({ ...cur, at: Date.now() }))
+    } catch { /* private mode / no storage — skip the delta */ }
+  }, [data])
 
   if (loading) return <Skeleton />
   if (error && !data) return <ErrorState error={error} onRetry={refresh} />
 
   const { nowScore, nowConditions: c, tideNow, alerts, today, outlook, nextWindow, sources, stormToday, buoy, marineForecast } = data
   const edge = edgeNow(catches || [], tideNow)
+  const ans = oneAnswer(data, new Date(tick))
+  const countdown = answerCountdown(ans, new Date(tick))
   const tone = nowScore.verdict.tone
   const best = today.windows[0]
   const fetchedAts = Object.values(sources).map((s) => s.fetchedAt).filter(Boolean)
@@ -43,7 +65,15 @@ export default function Dashboard() {
           </div>
         </div>
         <h1 className="display" style={{ color: toneColor(tone) }}>{nowScore.verdict.label}</h1>
-        <p className="muted">
+        <p className="answer-line">
+          <b style={{ color: toneColor(ans.tone) }}>{ans.verb}</b> — {ans.detail}
+          {ans.target && countdown ? <span className="answer-count"> · {countdown}</span> : null}
+          {ans.caveat ? <span className="answer-caveat"> · {ans.caveat}</span> : null}
+        </p>
+        {delta && (
+          <p className="answer-delta">Since your last look ({relTime(delta.at)}): {delta.phrases.join(' · ')}</p>
+        )}
+        <p className="muted small">
           {HOME_PORT.label} · {stale ? 'cached' : 'updated'} {relTime(lastUpdated)}
           {stale && <span className="v-poor"> · offline/stale</span>}
         </p>
