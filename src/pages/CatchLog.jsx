@@ -8,6 +8,7 @@ import { speciesPatterns, overallStats, hourHistogram } from '../engine/patterns
 import { fmtTime, fmtDateShort } from '../utils/format.js'
 import { IcX, IcShare } from '../components/icons.jsx'
 import { shareCatchCard } from '../services/catchCard.js'
+import { haptic } from '../utils/haptic.js'
 
 const SPECIES = [...FINFISH.map((f) => f.name), 'Stone Crab', 'Spiny Lobster', 'Shrimp', 'Other']
 const TIDES = ['Incoming', 'Outgoing', 'High slack', 'Low slack', 'Tide change']
@@ -40,6 +41,7 @@ export default function CatchLog() {
       lat: f.lat, lon: f.lon,
       moonPhase: sol.moon.phaseName, solunarType: active ? active.period.type : null, createdAt: Date.now(),
     })
+    haptic()
     setF((s) => ({ ...s, length: '', weight: '', bait: '', spot: '', notes: '', when: nowLocal(), lat: null, lon: null }))
     setOpen(false)
   }

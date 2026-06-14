@@ -48,7 +48,7 @@ export default function ScoreRing({ score = 0, tone = 'ok', size = 188 }) {
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
         style={{ transition: 'stroke-dashoffset .7s var(--ease)' }}
       />
-      <text x="50%" y="49%" textAnchor="middle" dominantBaseline="middle" fontSize={size * 0.3} fontWeight="800" fill="var(--text)">
+      <text x="50%" y="49%" textAnchor="middle" dominantBaseline="middle" fontSize={size * 0.3} fontWeight="700" fill="var(--text)" style={{ fontFamily: 'var(--font-display)' }}>
         {shown}
       </text>
       <text x="50%" y="67%" textAnchor="middle" fontSize={size * 0.08} fill="var(--text-faint)" letterSpacing="2">

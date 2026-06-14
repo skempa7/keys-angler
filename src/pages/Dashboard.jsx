@@ -10,6 +10,7 @@ import OfflineButton from '../components/OfflineButton.jsx'
 import { HOME_PORT } from '../config.js'
 import { fmtTime, fmtRange, fmtDayShort, relTime, compass, toneColor, weatherLabel, dayLabel, sstColor } from '../utils/format.js'
 import WindArrow from '../components/WindArrow.jsx'
+import { IcStorm } from '../components/icons.jsx'
 
 export default function Dashboard() {
   const { data, loading, error, refreshing, online, refresh } = useConditions({ days: 5 })
@@ -61,11 +62,11 @@ export default function Dashboard() {
 
       {stormToday && stormToday.level !== 'low' && (
         <div className={`alert-banner ${stormToday.level === 'high' ? 'warn' : 'info'}`}>
-          <strong>⛈ {stormToday.level === 'high' ? 'Storm risk' : 'Showers possible'}</strong> — {stormToday.text}
+          <strong><IcStorm width={15} height={15} style={{ verticalAlign: '-2px' }} /> {stormToday.level === 'high' ? 'Storm risk' : 'Showers possible'}</strong> — {stormToday.text}
         </div>
       )}
 
-      <div className="card hero">
+      <div className="card hero raised">
         <ReefBackdrop />
         <ScoreRing score={nowScore.score} tone={tone} />
         <div className="hero-body">
@@ -127,7 +128,7 @@ export default function Dashboard() {
       </div>
 
       {buoy && (
-        <div className="card stack-sm">
+        <div className="card quiet stack-sm">
           <div className="row between">
             <div className="eyebrow">Live buoy{buoy.name ? ` · ${buoy.name}` : ''}{buoy.distNm ? ` · ~${Math.round(buoy.distNm)} nm` : ''}</div>
             <span className="faint" style={{ fontSize: 11 }}>{buoy.timestamp ? relTime(new Date(buoy.timestamp).getTime()) : ''}</span>
@@ -143,7 +144,7 @@ export default function Dashboard() {
       )}
 
       {marineForecast?.text && (
-        <details className="card forecast-card">
+        <details className="card quiet forecast-card">
           <summary>
             <span className="eyebrow">NWS marine forecast</span>
             <span className="faint" style={{ fontSize: 11 }}> · {marineForecast.issued ? `issued ${relTime(new Date(marineForecast.issued).getTime())}` : 'tap to read'}</span>

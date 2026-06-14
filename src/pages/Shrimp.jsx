@@ -1,5 +1,6 @@
 import { shrimpStatus, HARVEST_AS_OF } from '../data/harvest.js'
 import RulesList from '../components/RulesList.jsx'
+import { IcShrimp } from '../components/icons.jsx'
 
 export default function Shrimp() {
   const status = shrimpStatus()
@@ -17,7 +18,7 @@ export default function Shrimp() {
             <div className="eyebrow">Shrimp</div>
             <div className="h1">Open year-round</div>
           </div>
-          <div className="big" style={{ fontSize: 30 }}>🦐</div>
+          <span style={{ color: 'var(--accent)' }}><IcShrimp width={30} height={30} /></span>
         </div>
         <div className="muted" style={{ fontSize: 13, marginTop: 6 }}>{status.season}</div>
       </div>

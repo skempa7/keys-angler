@@ -70,7 +70,7 @@ export default function Calendar() {
       <div className="card stack-sm">
         <div className="eyebrow">Running in {monthName(month)}</div>
         <div className="row wrap" style={{ gap: 8 }}>
-          {migrations.map((m, i) => <span key={i} className={`chip ${m.hot ? 'active' : ''}`}>{m.s}{m.hot ? ' 🔥' : ''}</span>)}
+          {migrations.map((m, i) => <span key={i} className={`chip ${m.hot ? 'active' : ''}`}>{m.s}</span>)}
         </div>
         <ul className="rules-list" style={{ marginTop: 4 }}>
           {migrations.filter((m) => m.note).map((m, i) => <li key={i}><b>{m.s}:</b> {m.note}</li>)}

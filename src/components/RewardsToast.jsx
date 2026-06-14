@@ -23,7 +23,7 @@ export default function RewardsToast() {
       if (newBadge || leveled) {
         await db.settings.put({ key: 'rewardsSeen', value: { level: r.level, badges: earnedIds } })
         if (!cancelled) {
-          setToast(newBadge ? `${newBadge.icon} Badge unlocked — ${newBadge.name}` : `⚓ Rank up — you're now ${r.rank}`)
+          setToast(newBadge ? `Badge unlocked — ${newBadge.name}` : `Rank up — you're now ${r.rank}`)
           setTimeout(() => !cancelled && setToast(null), 3800)
         }
       }

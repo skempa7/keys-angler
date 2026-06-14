@@ -6,7 +6,7 @@ import 'leaflet.heat'
 import { db } from '../db/db.js'
 import { useActiveLocation } from '../hooks/useActiveLocation.js'
 import { getHabitat, crabHabitatScore } from '../services/habitat.js'
-import { IcX } from '../components/icons.jsx'
+import { IcX, IcPin, IcFlame } from '../components/icons.jsx'
 
 const KIND = {
   fish: { label: 'Fishing', color: '#36c5f0' },
@@ -107,8 +107,8 @@ export default function MapSpots() {
         <button className={`chip ${dropMode ? 'active' : ''}`} onClick={() => { setDropMode((d) => !d); setDraft(null) }}>
           {dropMode ? 'Tap the map to drop…' : '＋ Drop a spot'}
         </button>
-        <button className="chip" onClick={locateMe}>📍 My location</button>
-        <button className={`chip ${heatMode ? 'active' : ''}`} onClick={() => setHeatMode((h) => !h)}>{heatMode ? '🔥 Heatmap on' : '🔥 Catch heatmap'}</button>
+        <button className="chip" onClick={locateMe}><IcPin width={15} height={15} /> My location</button>
+        <button className={`chip ${heatMode ? 'active' : ''}`} onClick={() => setHeatMode((h) => !h)}><IcFlame width={15} height={15} /> {heatMode ? 'Heatmap on' : 'Catch heatmap'}</button>
       </div>
 
       <div ref={elRef} className="map-el" />

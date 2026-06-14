@@ -5,6 +5,7 @@ import { primeOffline } from '../services/conditions.js'
 import { useActiveLocation } from '../hooks/useActiveLocation.js'
 import { DEFAULTS, ALL_MARINE_ZONES } from '../data/stations.js'
 import { relTime } from '../utils/format.js'
+import { haptic } from '../utils/haptic.js'
 
 // One-tap "download for offline" — primes the rolling window into IndexedDB.
 export default function OfflineButton({ variant = 'block' }) {
@@ -18,6 +19,7 @@ export default function OfflineButton({ variant = 'block' }) {
     try {
       const r = await primeOffline({ lat: loc.lat, lon: loc.lon, station: DEFAULTS.tideStation, zones: ALL_MARINE_ZONES })
       await db.settings.put({ key: 'lastPrimed', value: Date.now() })
+      haptic()
       setMsg(`Saved ${r.ok}/${r.total} for offline`)
     } catch {
       setMsg('Failed — try on WiFi')

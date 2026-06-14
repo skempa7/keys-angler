@@ -1,6 +1,12 @@
 import { useRewards } from '../hooks/useRewards.js'
 import { fmtDateShort } from '../utils/format.js'
-import { IcTrophy } from '../components/icons.jsx'
+import { IcTrophy, IcFish, IcStar, IcWaves, IcMap, IcMedal, IcHook, IcPin } from '../components/icons.jsx'
+
+const BADGE_ICON = {
+  first: IcHook, ten: IcFish, century: IcMedal, 'five-species': IcWaves, 'ten-species': IcFish,
+  grand: IcTrophy, backcountry: IcMedal, reef: IcWaves, tarpon: IcFish, bone: IcFish, permit: IcStar,
+  planner: IcMap, spotter: IcPin,
+}
 
 export default function Logbook() {
   const r = useRewards()
@@ -35,7 +41,7 @@ export default function Logbook() {
         <div className="badge-grid">
           {r.badges.map((b) => (
             <div key={b.id} className={`badge ${b.earned ? 'earned' : ''}`} title={b.desc}>
-              <div className="badge-ico">{b.icon}</div>
+              <div className="badge-ico">{(() => { const Ic = BADGE_ICON[b.id] || IcStar; return <Ic width={26} height={26} /> })()}</div>
               <div className="badge-name">{b.name}</div>
               <div className="badge-desc">{b.desc}</div>
             </div>
