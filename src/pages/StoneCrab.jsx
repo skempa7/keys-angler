@@ -2,6 +2,7 @@ import { stoneCrabStatus, HARVEST_AS_OF } from '../data/harvest.js'
 import SeasonBadge from '../components/SeasonBadge.jsx'
 import RulesList from '../components/RulesList.jsx'
 import Spots from '../components/Spots.jsx'
+import TrapTracker from '../components/TrapTracker.jsx'
 
 export default function StoneCrab() {
   const status = stoneCrabStatus()
@@ -31,6 +32,8 @@ export default function StoneCrab() {
           A full bottom-type map overlay (FWC reef habitat + NOAA depth) is wired for a later update; for now the rules above + your marked spots do the work offline.
         </p>
       </div>
+
+      <TrapTracker />
 
       <Spots kind="crab" title="Your crab spots" />
 

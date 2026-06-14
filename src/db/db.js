@@ -32,4 +32,9 @@ db.version(1).stores({
   cache: '&key, source, fetchedAt',
 })
 
+// v2: stone-crab trap-set / soak-time tracking.
+db.version(2).stores({
+  trapSets: '++id, setAt, pulledAt',
+})
+
 export default db

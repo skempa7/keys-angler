@@ -5,8 +5,9 @@ import { ZONES, ZONE_BY_ID } from '../config.js'
 import { DEFAULTS, ALL_MARINE_ZONES } from '../data/stations.js'
 import { useActiveLocation } from '../hooks/useActiveLocation.js'
 import { planTrip } from '../services/tripPlan.js'
-import { fmtTime, fmtRange, fmtDateShort, toneColor, strengthColor, compass } from '../utils/format.js'
+import { fmtTime, fmtRange, fmtDateShort, toneColor, strengthColor, compass, sstColor } from '../utils/format.js'
 import { IcX } from '../components/icons.jsx'
+import WindArrow from '../components/WindArrow.jsx'
 import { downloadICS, tripCalendarEvent } from '../services/phase2.js'
 
 const pad = (n) => String(n).padStart(2, '0')
@@ -155,8 +156,8 @@ function Briefing({ current, loc, onBack, note }) {
       </div>
 
       <div className="grid cols-2">
-        <div className="card stat"><div className="eyebrow">Wind & sea</div><div className="stat-main">{p.conditions?.windKn != null ? `${Math.round(p.conditions.windKn)} kn` : '—'}</div><div className="faint stat-foot">{p.conditions?.waveFt != null ? `${p.conditions.waveFt.toFixed(1)} ft seas` : 'forecast pending'}</div></div>
-        <div className="card stat"><div className="eyebrow">Water temp</div><div className="stat-main">{p.conditions?.sstF != null ? `${Math.round(p.conditions.sstF)}°F` : '—'}</div><div className="faint stat-foot">{p.moon?.phaseName}</div></div>
+        <div className="card stat"><div className="row between"><div className="eyebrow">Wind & sea</div><WindArrow dir={p.conditions?.windDir} /></div><div className="stat-main">{p.conditions?.windKn != null ? `${Math.round(p.conditions.windKn)} kn` : '—'}</div><div className="faint stat-foot">{p.conditions?.waveFt != null ? `${p.conditions.waveFt.toFixed(1)} ft seas` : 'forecast pending'}</div></div>
+        <div className="card stat"><div className="eyebrow">Water temp</div><div className="stat-main" style={{ color: sstColor(p.conditions?.sstF) }}>{p.conditions?.sstF != null ? `${Math.round(p.conditions.sstF)}°F` : '—'}</div><div className="faint stat-foot">{p.moon?.phaseName}</div></div>
         <div className="card stat"><div className="eyebrow">Sunrise</div><div className="stat-main">{fmtTime(p.sunrise ? new Date(p.sunrise) : null)}</div><div className="faint stat-foot">Sunset {fmtTime(sunset)}</div></div>
         <div className="card stat"><div className="eyebrow">Tides</div><div className="faint stat-foot" style={{ marginTop: 6 }}>{(p.tideEvents || []).map((e, i) => <div key={i}>{e.type === 'H' ? 'High' : 'Low'} {fmtTime(new Date(e.time))} ({e.level.toFixed(1)} ft)</div>)}{(p.tideEvents || []).length === 0 && '—'}</div></div>
       </div>

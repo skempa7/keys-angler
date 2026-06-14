@@ -4,6 +4,7 @@ import { useTheme } from '../hooks/useTheme.js'
 import { useActiveLocation, setActiveLocation, resetActiveLocation } from '../hooks/useActiveLocation.js'
 import { evictSource } from '../services/cache.js'
 import { downloadICS, seasonReminderEvents, gatewayStatus, TOURNAMENTS_SAMPLE } from '../services/phase2.js'
+import OfflineButton from '../components/OfflineButton.jsx'
 import { db } from '../db/db.js'
 
 export default function Settings() {
@@ -60,6 +61,8 @@ export default function Settings() {
 
       <div className="card stack-sm">
         <div className="eyebrow">Data</div>
+        <OfflineButton />
+        <div className="divider" />
         <button className="btn ghost block" onClick={refreshData}>Clear cached conditions (force refresh)</button>
         <button className="btn ghost block" onClick={clearPersonal} style={{ color: 'var(--bad)' }}>Delete my catches, spots & gear</button>
       </div>

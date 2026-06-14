@@ -425,4 +425,7 @@ textarea.input { min-height: 80px; padding: var(--sp-3); resize: vertical; }
 .onb-list { display: grid; gap: 8px; text-align: left; font-size: 14px; }
 .onb-list li { color: var(--text-dim); }
 
+.trapset { padding: 12px 0; border-top: 1px solid var(--border-soft); }
+.trapset:first-of-type { border-top: none; }
+
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

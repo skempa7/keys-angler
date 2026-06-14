@@ -119,3 +119,11 @@ export async function loadConditions({ lat, lon, station, zones, days = 4, when 
     sources: { tides: meta(tideRes), marine: meta(marineRes), wx: meta(wxRes), alerts: meta(alertRes) },
   }
 }
+
+// One-tap "Download for offline": force-fetch the rolling window under the SAME
+// cache keys the app reads, so every core screen renders offshore with no signal.
+export async function primeOffline({ lat, lon, station, zones }) {
+  const res = await loadConditions({ lat, lon, station, zones, days: 7, when: new Date(), forceFresh: true })
+  const sources = res.sources
+  return { ok: Object.values(sources).filter((s) => s.ok).length, total: Object.keys(sources).length, sources }
+}

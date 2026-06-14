@@ -41,6 +41,15 @@ export const dayLabel = (score) =>
 export const strengthColor = (s) =>
   ({ Prime: 'var(--good)', Strong: 'var(--ok)', Fair: 'var(--caution)', Slow: 'var(--poor)' }[s] || 'var(--accent)')
 
+// Sea-surface temp → color (cool / ideal / warm / hot for the Keys).
+export const sstColor = (f) => {
+  if (f == null) return 'var(--text)'
+  if (f < 72) return 'var(--accent)'
+  if (f <= 86) return 'var(--good)'
+  if (f <= 89) return 'var(--caution)'
+  return 'var(--poor)'
+}
+
 // Open-Meteo WMO weather codes → short label.
 export function weatherLabel(code) {
   if (code == null) return ''

@@ -6,8 +6,10 @@ import TideCurve from '../components/TideCurve.jsx'
 import MoonGlyph from '../components/MoonGlyph.jsx'
 import ReefBackdrop from '../components/ReefBackdrop.jsx'
 import HourlyScrubber from '../components/HourlyScrubber.jsx'
+import OfflineButton from '../components/OfflineButton.jsx'
 import { HOME_PORT } from '../config.js'
-import { fmtTime, fmtRange, fmtDayShort, relTime, compass, toneColor, weatherLabel, dayLabel } from '../utils/format.js'
+import { fmtTime, fmtRange, fmtDayShort, relTime, compass, toneColor, weatherLabel, dayLabel, sstColor } from '../utils/format.js'
+import WindArrow from '../components/WindArrow.jsx'
 
 export default function Dashboard() {
   const { data, loading, error, refreshing, online, refresh } = useConditions({ days: 5 })
@@ -29,9 +31,10 @@ export default function Dashboard() {
       <header className="page-head">
         <div className="row between">
           <div className="eyebrow">Should I go fishing?</div>
-          <button className="chip" onClick={refresh} disabled={refreshing}>
-            {refreshing ? 'Refreshing…' : '↻ Refresh'}
-          </button>
+          <div className="row" style={{ gap: 6 }}>
+            <OfflineButton variant="chip" />
+            <button className="chip" onClick={refresh} disabled={refreshing}>{refreshing ? 'Refreshing…' : '↻ Refresh'}</button>
+          </div>
         </div>
         <h1 className="display" style={{ color: toneColor(tone) }}>{nowScore.verdict.label}</h1>
         <p className="muted">
@@ -105,10 +108,12 @@ export default function Dashboard() {
           foot={nextTide ? `Next ${nextTide.type === 'H' ? 'high' : 'low'} ${fmtTime(nextTide.time)} (${nextTide.level.toFixed(1)} ft)` : ''} />
         <Stat label="Wind & sea" main={c.windKn != null ? `${Math.round(c.windKn)} kn` : '—'}
           sub={c.windDir != null ? `${compass(c.windDir)}${c.gustKn ? ` · gusts ${Math.round(c.gustKn)}` : ''}` : ''}
-          foot={c.waveFt != null ? `${c.waveFt.toFixed(1)} ft @ ${Math.round(c.wavePeriod || 0)} s` : ''} />
+          foot={c.waveFt != null ? `${c.waveFt.toFixed(1)} ft @ ${Math.round(c.wavePeriod || 0)} s` : ''}
+          glyph={<WindArrow dir={c.windDir} />} />
         <Stat label="Water temp" main={c.sstF != null ? `${Math.round(c.sstF)}°F` : '—'}
           sub={c.weatherCode != null ? weatherLabel(c.weatherCode) : ''}
-          foot={c.airF != null ? `Air ${Math.round(c.airF)}°F` : ''} />
+          foot={c.airF != null ? `Air ${Math.round(c.airF)}°F` : ''}
+          mainColor={sstColor(c.sstF)} />
         <Stat label="Sun & moon" main={`${fmtTime(today.solunar.sun.rise)}`}
           sub={`☀ up · down ${fmtTime(today.solunar.sun.set)}`}
           foot={`${m.phaseName} · ${Math.round(m.illum * 100)}%`}
@@ -149,11 +154,11 @@ export default function Dashboard() {
   )
 }
 
-function Stat({ label, main, sub, foot, glyph }) {
+function Stat({ label, main, sub, foot, glyph, mainColor }) {
   return (
     <div className="card stat">
       <div className="row between"><div className="eyebrow">{label}</div>{glyph || null}</div>
-      <div className="stat-main">{main}</div>
+      <div className="stat-main" style={mainColor ? { color: mainColor } : undefined}>{main}</div>
       {sub ? <div className="muted stat-sub">{sub}</div> : null}
       {foot ? <div className="faint stat-foot">{foot}</div> : null}
     </div>
