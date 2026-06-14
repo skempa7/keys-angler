@@ -2,6 +2,10 @@ import { Link } from 'react-router-dom'
 import { useConditions } from '../hooks/useConditions.js'
 import ScoreRing from '../components/ScoreRing.jsx'
 import FactorList from '../components/FactorList.jsx'
+import TideCurve from '../components/TideCurve.jsx'
+import MoonGlyph from '../components/MoonGlyph.jsx'
+import ReefBackdrop from '../components/ReefBackdrop.jsx'
+import HourlyScrubber from '../components/HourlyScrubber.jsx'
 import { HOME_PORT } from '../config.js'
 import { fmtTime, fmtRange, fmtDayShort, relTime, compass, toneColor, weatherLabel, dayLabel } from '../utils/format.js'
 
@@ -36,6 +40,11 @@ export default function Dashboard() {
         </p>
       </header>
 
+      <div className="quick-actions">
+        <Link to="/log" className="btn primary">＋ Log a catch</Link>
+        <Link to="/plan" className="btn ghost">Plan a trip</Link>
+      </div>
+
       {alerts.length > 0 && (
         <div className="stack-sm">
           {alerts.map((a, i) => (
@@ -48,6 +57,7 @@ export default function Dashboard() {
       )}
 
       <div className="card hero">
+        <ReefBackdrop />
         <ScoreRing score={nowScore.score} tone={tone} />
         <div className="hero-body">
           <div className="eyebrow">Conditions right now</div>
@@ -101,8 +111,21 @@ export default function Dashboard() {
           foot={c.airF != null ? `Air ${Math.round(c.airF)}°F` : ''} />
         <Stat label="Sun & moon" main={`${fmtTime(today.solunar.sun.rise)}`}
           sub={`☀ up · down ${fmtTime(today.solunar.sun.set)}`}
-          foot={`${m.phaseName} · ${Math.round(m.illum * 100)}%`} />
+          foot={`${m.phaseName} · ${Math.round(m.illum * 100)}%`}
+          glyph={<MoonGlyph illum={m.illum} phaseDeg={m.phaseDeg} size={30} />} />
       </div>
+
+      {today.tideEvents.length >= 2 && (
+        <div className="card stack-sm">
+          <div className="row between">
+            <div className="eyebrow">Today's tide</div>
+            {tideNow && <span className="faint" style={{ fontSize: 12 }}>{capitalize(tideNow.direction)}{nextTide ? ` · next ${nextTide.type === 'H' ? 'high' : 'low'} ${fmtTime(nextTide.time)}` : ''}</span>}
+          </div>
+          <TideCurve events={today.tideEvents} now={data.when} />
+        </div>
+      )}
+
+      <HourlyScrubber hourly={today.hourlyScores} nowHour={data.when.getHours()} />
 
       <div className="card stack-sm">
         <div className="eyebrow">Next {outlook.length} days</div>
@@ -126,10 +149,10 @@ export default function Dashboard() {
   )
 }
 
-function Stat({ label, main, sub, foot }) {
+function Stat({ label, main, sub, foot, glyph }) {
   return (
     <div className="card stat">
-      <div className="eyebrow">{label}</div>
+      <div className="row between"><div className="eyebrow">{label}</div>{glyph || null}</div>
       <div className="stat-main">{main}</div>
       {sub ? <div className="muted stat-sub">{sub}</div> : null}
       {foot ? <div className="faint stat-foot">{foot}</div> : null}

@@ -97,6 +97,11 @@ export async function loadConditions({ lat, lon, station, zones, days = 4, when 
   }
 
   const today = outlook[0]
+  today.hourlyScores = Array.from({ length: 24 }, (_, h) => {
+    const at = new Date(begin.getFullYear(), begin.getMonth(), begin.getDate(), h, 0, 0)
+    const s = computeMomentScore(buildSample({ when: at, solunar: today.solunar, tideEvents: today.tideEvents, marineJson, wxJson, alerts }))
+    return { hour: h, score: s.score, tone: s.verdict.tone }
+  })
   const nowScore = computeMomentScore(buildSample({ when, solunar: today.solunar, tideEvents: today.tideEvents, marineJson, wxJson, alerts }))
   const nextWindow = today.windows.filter((w) => w.end >= when).sort((a, b) => a.start - b.start)[0] || null
 

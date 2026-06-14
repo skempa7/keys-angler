@@ -6,7 +6,8 @@ import { FINFISH } from '../data/regs.js'
 import { solunarDay, activePeriodAt } from '../engine/solunar.js'
 import { speciesPatterns, overallStats, hourHistogram } from '../engine/patterns.js'
 import { fmtTime, fmtDateShort } from '../utils/format.js'
-import { IcX } from '../components/icons.jsx'
+import { IcX, IcShare } from '../components/icons.jsx'
+import { shareCatchCard } from '../services/catchCard.js'
 
 const SPECIES = [...FINFISH.map((f) => f.name), 'Stone Crab', 'Spiny Lobster', 'Shrimp', 'Other']
 const TIDES = ['Incoming', 'Outgoing', 'High slack', 'Low slack', 'Tide change']
@@ -17,9 +18,17 @@ const num = (x) => (x === '' || x == null ? null : Number(x))
 export default function CatchLog() {
   const catches = useLiveQuery(() => db.catches.orderBy('caughtAt').reverse().toArray(), [], [])
   const [open, setOpen] = useState(false)
-  const [f, setF] = useState({ species: 'Yellowtail Snapper', length: '', weight: '', when: nowLocal(), zone: 'reef', tide: '', bait: '', spot: '', notes: '' })
+  const [f, setF] = useState({ species: 'Yellowtail Snapper', length: '', weight: '', when: nowLocal(), zone: 'reef', tide: '', bait: '', spot: '', notes: '', lat: null, lon: null })
 
   const set = (k) => (e) => setF((s) => ({ ...s, [k]: e.target.value }))
+  const pinLocation = () => {
+    if (!navigator.geolocation) return
+    navigator.geolocation.getCurrentPosition(
+      (p) => setF((s) => ({ ...s, lat: p.coords.latitude, lon: p.coords.longitude })),
+      () => {},
+      { enableHighAccuracy: true, timeout: 8000 },
+    )
+  }
 
   const save = async () => {
     const date = new Date(f.when)
@@ -28,9 +37,10 @@ export default function CatchLog() {
     await db.catches.add({
       species: f.species, lengthIn: num(f.length), weightLb: num(f.weight),
       caughtAt: date.getTime(), zone: f.zone, tide: f.tide, bait: f.bait, spot: f.spot, notes: f.notes,
+      lat: f.lat, lon: f.lon,
       moonPhase: sol.moon.phaseName, solunarType: active ? active.period.type : null, createdAt: Date.now(),
     })
-    setF((s) => ({ ...s, length: '', weight: '', bait: '', spot: '', notes: '', when: nowLocal() }))
+    setF((s) => ({ ...s, length: '', weight: '', bait: '', spot: '', notes: '', when: nowLocal(), lat: null, lon: null }))
     setOpen(false)
   }
 
@@ -69,6 +79,9 @@ export default function CatchLog() {
           </div>
           <label className="field"><span className="field-label">Bait / lure</span><input className="input" value={f.bait} onChange={set('bait')} /></label>
           <label className="field"><span className="field-label">Spot</span><input className="input" value={f.spot} onChange={set('spot')} placeholder="optional" /></label>
+          <button type="button" className={`chip ${f.lat != null ? 'active' : ''}`} onClick={pinLocation} style={{ alignSelf: 'flex-start' }}>
+            {f.lat != null ? '📍 Location pinned' : '📍 Pin my location'}
+          </button>
           <button className="btn primary block lg" onClick={save}>Save catch</button>
         </div>
       )}
@@ -119,6 +132,7 @@ export default function CatchLog() {
                 {c.tide ? ` · ${c.tide}` : ''}{c.bait ? ` · ${c.bait}` : ''}{c.spot ? ` · ${c.spot}` : ''}
               </div>
             </div>
+            <button className="icon-btn" onClick={() => shareCatchCard(c)} aria-label="Share catch"><IcShare width={18} height={18} /></button>
             <button className="icon-btn" onClick={() => db.catches.delete(c.id)} aria-label="Delete catch"><IcX width={18} height={18} /></button>
           </div>
         ))}

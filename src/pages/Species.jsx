@@ -8,6 +8,8 @@ import { getReg, isOpenOn, verifyUrl } from '../data/regs.js'
 import { useConditions } from '../hooks/useConditions.js'
 import { fmtRange, strengthColor } from '../utils/format.js'
 import { IcChevron } from '../components/icons.jsx'
+import { SpeciesArt } from '../components/FishArt.jsx'
+import ZoneScene from '../components/ZoneScene.jsx'
 
 export default function Species() {
   const { data } = useConditions({ days: 1 })
@@ -24,12 +26,14 @@ export default function Species() {
         <h1 className="h1">What do you want to catch?</h1>
         <p className="muted">Tuned to today’s water and your gear.</p>
       </header>
+      <ZoneScene />
       {ZONES.map((z) => (
         <div key={z.id} className="card stack-sm">
           <div className="eyebrow">{z.name}</div>
           <div className="tile-grid">
             {speciesByZone(z.id).map((s) => (
               <button key={s.id} className="tile" onClick={() => setSelId(s.id)}>
+                <span className="tile-ico"><SpeciesArt id={s.id} width={34} height={20} /></span>
                 <span className="tile-body">
                   <span className="tile-label">{s.name}</span>
                   <span className="tile-sub">{s.aka || z.short}</span>
@@ -61,7 +65,10 @@ function Detail({ s, data, gear, onBack }) {
       <button className="btn ghost" onClick={onBack} style={{ alignSelf: 'flex-start' }}>← Species</button>
       <header className="page-head">
         <div className="eyebrow">{zone?.name}</div>
-        <h1 className="h1">{s.name}</h1>
+        <div className="row" style={{ gap: 10, alignItems: 'center' }}>
+          <span style={{ color: 'var(--accent)', flex: 'none' }}><SpeciesArt id={s.id} width={58} height={30} /></span>
+          <h1 className="h1" style={{ margin: 0 }}>{s.name}</h1>
+        </div>
         <div className="row wrap" style={{ gap: 8, marginTop: 6 }}>
           <span className="tag" style={{ background: 'var(--surface-2)', color: cr ? 'var(--accent)' : open ? 'var(--good)' : 'var(--caution)' }}>
             {cr ? 'Catch & release' : open ? 'In season' : 'Closed now'}

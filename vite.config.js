@@ -56,6 +56,15 @@ export default defineConfig(({ command }) => {
             apiCache('nws', 'weather.gov'),
             apiCache('fwc-gis', 'myfwc.com'),
             apiCache('ncei', 'ngdc.noaa.gov'),
+            {
+              urlPattern: ({ url }) => /tile\.openstreetmap\.org|tiles\.openseamap\.org/.test(url.hostname),
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'map-tiles',
+                expiration: { maxEntries: 800, maxAgeSeconds: 60 * 60 * 24 * 30 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
           ],
         },
       }),

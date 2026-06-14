@@ -1,3 +1,4 @@
+import { lazy } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout.jsx'
 import Placeholder from './components/Placeholder.jsx'
@@ -14,6 +15,10 @@ import CatchLog from './pages/CatchLog.jsx'
 import GearLocker from './pages/GearLocker.jsx'
 import GrandSlam from './pages/GrandSlam.jsx'
 import Settings from './pages/Settings.jsx'
+import Logbook from './pages/Logbook.jsx'
+
+// Code-split the map page so Leaflet stays out of the initial bundle.
+const MapSpots = lazy(() => import('./pages/MapSpots.jsx'))
 
 // Router basename so deep links work under the GitHub Pages subpath (/keys-angler/).
 const basename = import.meta.env.BASE_URL.replace(/\/$/, '')
@@ -34,6 +39,8 @@ export default function App() {
           <Route path="shrimp" element={<Shrimp />} />
           <Route path="gear" element={<GearLocker />} />
           <Route path="slam" element={<GrandSlam />} />
+          <Route path="map" element={<MapSpots />} />
+          <Route path="logbook" element={<Logbook />} />
           <Route path="more" element={<More />} />
           <Route path="settings" element={<Settings />} />
           <Route path="*" element={<Placeholder title="Not found" icon="🧭" note="That screen doesn't exist yet." />} />
