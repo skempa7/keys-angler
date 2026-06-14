@@ -13,7 +13,7 @@ import OfflineButton from '../components/OfflineButton.jsx'
 import { HOME_PORT } from '../config.js'
 import { fmtTime, fmtRange, fmtDayShort, relTime, compass, toneColor, weatherLabel, dayLabel, sstColor } from '../utils/format.js'
 import WindArrow from '../components/WindArrow.jsx'
-import { IcStorm } from '../components/icons.jsx'
+import { IcStorm, IcWaves } from '../components/icons.jsx'
 
 export default function Dashboard() {
   const { data, loading, error, refreshing, online, refresh } = useConditions({ days: 5 })
@@ -53,6 +53,7 @@ export default function Dashboard() {
         <Link to="/log" className="btn primary">＋ Log a catch</Link>
         <Link to="/plan" className="btn ghost">Plan a trip</Link>
       </div>
+      <Link to="/onwater" className="btn block ow-launch"><IcWaves width={18} height={18} /> On-water mode — big &amp; glanceable, screen stays on</Link>
 
       {alerts.length > 0 && (
         <div className="stack-sm">

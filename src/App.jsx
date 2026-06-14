@@ -17,6 +17,7 @@ import GearLocker from './pages/GearLocker.jsx'
 import GrandSlam from './pages/GrandSlam.jsx'
 import Settings from './pages/Settings.jsx'
 import Logbook from './pages/Logbook.jsx'
+import OnWater from './pages/OnWater.jsx'
 
 // Code-split the map page so Leaflet stays out of the initial bundle.
 const MapSpots = lazy(() => import('./pages/MapSpots.jsx'))
@@ -28,6 +29,8 @@ export default function App() {
   return (
     <BrowserRouter basename={basename || '/'}>
       <Routes>
+        {/* Full-screen takeover — no sidebar/bottom-nav chrome. */}
+        <Route path="onwater" element={<OnWater />} />
         <Route element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="bite" element={<BiteTimes />} />
