@@ -59,3 +59,28 @@ Example: `…/datagetter?product=predictions&application=keys_angler&begin_date=
 - Strategy: **seed-on-WiFi** (cache habitat GeoJSON + coarse depth grid for the Keys home range) + **user-marked spots**.
   Trap productivity is hyper-local — habitat/depth screens & explains spots, the angler's own marks rank them.
 - Offline basemap tiles: NOAA Chart Display Service (NCDS) MBTiles or OpenSeaMap seamarks (CORS `*`).
+
+---
+
+## Regulation re-verification log
+
+Independent re-checks of `src/data/regs.js` + `src/data/harvest.js` against the official
+FWC recreational pages (and NOAA HMS for tuna). Each entry lists what changed; "no change"
+means every curated value still matched the source on that date.
+
+- **2026-06-14** — Full re-verify, all 17 finfish + stone crab / spiny lobster / shrimp.
+  **No rule changes found.** Confirmed against FWC: mahi (20" FL, 5/30), sailfish (63" LJFL,
+  1 billfish, HMS federal-only), blackfin (no min, 2/person or 10/vessel greater), wahoo
+  (no min, 2), king mackerel (24" FL, Monroe Gulf bag of 3), yellowtail (12" TL) & mutton
+  (18" TL, 5) within the 10-snapper aggregate, gag (24" TL, open May 1–Aug 1; 2025 EO closes
+  Atlantic harvest Aug 2), black (24" TL) & red (20" TL) grouper open May 1–Dec 31 with the
+  Jan 1–Apr 30 shallow-water closure and 3-grouper aggregate, hogfish (Keys/Atlantic 16" FL,
+  1/day, open May 1–Oct 31), tarpon & bonefish catch-and-release, permit SPZ (11–22" FL slot
+  + 1 over 22", 1/harvester, closed Apr 1–Jul 31), snook SE (28–32" TL, 1/day, closed
+  Dec 15–Jan 31 & Jun 1–Aug 31), redfish SW (18–27" TL slot, 1/person 2/vessel). Harvest:
+  stone crab (claw ≥2 7/8" propodus, Oct 15–May 1, 1 gal/person or 2/vessel, 5 traps,
+  escape-ring spec), spiny lobster (carapace >3", regular Aug 6–Mar 31 @ 6/day, mini-season
+  Jul 29–30 2026 @ 6 in Monroe/Biscayne vs 12 elsewhere, Monroe night-diving ban during sport
+  season), shrimp (5 gal/person & vessel, no min, gear list; Apr–May closure is NE-FL only,
+  not Monroe). Yellowfin tuna cross-checked vs NOAA HMS: 27" curved fork, 3/person — unchanged.
+  `REGS_AS_OF` / `HARVEST_AS_OF` already `2026-06-14`; no bump needed.
