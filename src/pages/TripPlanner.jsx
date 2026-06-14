@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db.js'
 import { ZONES, ZONE_BY_ID } from '../config.js'
-import { DEFAULTS, ALL_MARINE_ZONES } from '../data/stations.js'
+import { ALL_MARINE_ZONES, nearestStation } from '../data/stations.js'
 import { useActiveLocation } from '../hooks/useActiveLocation.js'
 import { planTrip } from '../services/tripPlan.js'
 import { fmtTime, fmtRange, fmtDateShort, toneColor, strengthColor, compass, sstColor } from '../utils/format.js'
@@ -30,7 +30,7 @@ export default function TripPlanner() {
     try {
       const date = parseDate(form.dateStr)
       const departISO = `${form.dateStr}T${form.departTime || '06:30'}`
-      const plan = await planTrip({ date, zoneId: form.zoneId, lat: loc.lat, lon: loc.lon, station: DEFAULTS.tideStation, zones: ALL_MARINE_ZONES, departISO })
+      const plan = await planTrip({ date, zoneId: form.zoneId, lat: loc.lat, lon: loc.lon, station: nearestStation(loc.lat, loc.lon).id, zones: ALL_MARINE_ZONES, departISO })
       const meta = { ...form, locName: loc.name }
       const id = await db.trips.add({ date: date.getTime(), dateStr: form.dateStr, zoneId: form.zoneId, departISO, returnTime: form.returnTime, party: form.party, notes: form.notes, plan, locName: loc.name, createdAt: Date.now(), status: 'planned' })
       setCurrent({ id, plan, meta }); setView('brief')

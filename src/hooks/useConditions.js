@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { loadConditions } from '../services/conditions.js'
-import { DEFAULTS, ALL_MARINE_ZONES } from '../data/stations.js'
+import { ALL_MARINE_ZONES, nearestStation } from '../data/stations.js'
 import { useOnlineStatus } from './useOnlineStatus.js'
 import { useActiveLocation } from './useActiveLocation.js'
 
@@ -18,7 +18,7 @@ export function useConditions({ days = 4 } = {}) {
         const data = await loadConditions({
           lat: loc.lat,
           lon: loc.lon,
-          station: DEFAULTS.tideStation,
+          station: nearestStation(loc.lat, loc.lon).id,
           zones: ALL_MARINE_ZONES,
           days,
           when: new Date(),

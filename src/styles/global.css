@@ -428,4 +428,16 @@ textarea.input { min-height: 80px; padding: var(--sp-3); resize: vertical; }
 .trapset { padding: 12px 0; border-top: 1px solid var(--border-soft); }
 .trapset:first-of-type { border-top: none; }
 
+.forecast-card summary { cursor: pointer; list-style: none; }
+.forecast-card summary::-webkit-details-marker { display: none; }
+.forecast-text { white-space: pre-wrap; font-family: var(--font-mono); font-size: 11.5px; line-height: 1.45; color: var(--text-dim); max-height: 320px; overflow: auto; margin: 10px 0 0; }
+
+/* ---- Calendar ---------------------------------------------------------- */
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-dow { text-align: center; font-size: 10px; font-weight: 700; color: var(--text-faint); padding-bottom: 2px; }
+.cal-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 5px 0; border-radius: var(--r-1); background: var(--surface-2); min-height: 54px; }
+.cal-cell.today { outline: 2px solid var(--accent); outline-offset: -1px; }
+.cal-d { font-size: 11px; font-weight: 700; }
+.cal-dot { width: 7px; height: 7px; border-radius: 50%; }
+
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

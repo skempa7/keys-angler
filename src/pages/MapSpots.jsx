@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import 'leaflet.heat'
 import { db } from '../db/db.js'
 import { useActiveLocation } from '../hooks/useActiveLocation.js'
 import { getHabitat, crabHabitatScore } from '../services/habitat.js'
@@ -22,6 +23,8 @@ export default function MapSpots() {
   const elRef = useRef()
   const mapRef = useRef()
   const layerRef = useRef()
+  const heatLayerRef = useRef()
+  const [heatMode, setHeatMode] = useState(false)
   const [dropMode, setDropMode] = useState(false)
   const dropRef = useRef(false)
   const [draft, setDraft] = useState(null)
@@ -45,7 +48,8 @@ export default function MapSpots() {
 
   useEffect(() => {
     const lg = layerRef.current
-    if (!lg) return
+    const map = mapRef.current
+    if (!lg || !map) return
     lg.clearLayers()
     ;(spots || []).filter((s) => s.lat != null).forEach((s) => {
       const col = KIND[s.kind]?.color || KIND.fish.color
@@ -53,13 +57,21 @@ export default function MapSpots() {
         .bindPopup(`<b>${esc(s.name)}</b><br>${[KIND[s.kind]?.label, s.bottom, s.depth && `${s.depth} ft`].filter(Boolean).join(' · ')}`)
         .addTo(lg)
     })
-    ;(catches || []).filter((c) => c.lat != null).forEach((c) => {
-      L.circleMarker([c.lat, c.lon], { radius: 5, color: CATCH_COLOR, fillColor: CATCH_COLOR, fillOpacity: 0.55, weight: 1 })
-        .bindPopup(`<b>${esc(c.species)}</b>${c.lengthIn ? ` · ${c.lengthIn}"` : ''}`)
-        .addTo(lg)
-    })
+    const catchPts = (catches || []).filter((c) => c.lat != null)
+    if (heatLayerRef.current) { map.removeLayer(heatLayerRef.current); heatLayerRef.current = null }
+    if (heatMode) {
+      if (catchPts.length && L.heatLayer) {
+        heatLayerRef.current = L.heatLayer(catchPts.map((c) => [c.lat, c.lon, 0.9]), { radius: 30, blur: 22, maxZoom: 15, gradient: { 0.3: '#1b7fa3', 0.6: '#3ddc84', 1: '#f2c14e' } }).addTo(map)
+      }
+    } else {
+      catchPts.forEach((c) => {
+        L.circleMarker([c.lat, c.lon], { radius: 5, color: CATCH_COLOR, fillColor: CATCH_COLOR, fillOpacity: 0.55, weight: 1 })
+          .bindPopup(`<b>${esc(c.species)}</b>${c.lengthIn ? ` · ${c.lengthIn}"` : ''}`)
+          .addTo(lg)
+      })
+    }
     if (draft) L.circleMarker([draft.lat, draft.lon], { radius: 8, color: '#ffffff', fillColor: KIND[form.kind].color, fillOpacity: 0.9, weight: 2 }).addTo(lg)
-  }, [spots, catches, draft, form.kind])
+  }, [spots, catches, draft, form.kind, heatMode])
 
   const locateMe = () => {
     if (!navigator.geolocation) return note('Geolocation not available')
@@ -96,6 +108,7 @@ export default function MapSpots() {
           {dropMode ? 'Tap the map to drop…' : '＋ Drop a spot'}
         </button>
         <button className="chip" onClick={locateMe}>📍 My location</button>
+        <button className={`chip ${heatMode ? 'active' : ''}`} onClick={() => setHeatMode((h) => !h)}>{heatMode ? '🔥 Heatmap on' : '🔥 Catch heatmap'}</button>
       </div>
 
       <div ref={elRef} className="map-el" />

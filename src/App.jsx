@@ -4,6 +4,7 @@ import Layout from './components/Layout.jsx'
 import Placeholder from './components/Placeholder.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import BiteTimes from './pages/BiteTimes.jsx'
+import Calendar from './pages/Calendar.jsx'
 import TripPlanner from './pages/TripPlanner.jsx'
 import Species from './pages/Species.jsx'
 import Regs from './pages/Regs.jsx'
@@ -30,6 +31,7 @@ export default function App() {
         <Route element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="bite" element={<BiteTimes />} />
+          <Route path="calendar" element={<Calendar />} />
           <Route path="plan" element={<TripPlanner />} />
           <Route path="target" element={<Species />} />
           <Route path="regs" element={<Regs />} />

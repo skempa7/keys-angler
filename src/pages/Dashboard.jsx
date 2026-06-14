@@ -17,7 +17,7 @@ export default function Dashboard() {
   if (loading) return <Skeleton />
   if (error && !data) return <ErrorState error={error} onRetry={refresh} />
 
-  const { nowScore, nowConditions: c, tideNow, alerts, today, outlook, nextWindow, sources } = data
+  const { nowScore, nowConditions: c, tideNow, alerts, today, outlook, nextWindow, sources, stormToday, buoy, marineForecast } = data
   const tone = nowScore.verdict.tone
   const best = today.windows[0]
   const fetchedAts = Object.values(sources).map((s) => s.fetchedAt).filter(Boolean)
@@ -56,6 +56,12 @@ export default function Dashboard() {
               <span className="muted"> — {a.area}</span>
             </div>
           ))}
+        </div>
+      )}
+
+      {stormToday && stormToday.level !== 'low' && (
+        <div className={`alert-banner ${stormToday.level === 'high' ? 'warn' : 'info'}`}>
+          <strong>⛈ {stormToday.level === 'high' ? 'Storm risk' : 'Showers possible'}</strong> — {stormToday.text}
         </div>
       )}
 
@@ -120,6 +126,32 @@ export default function Dashboard() {
           glyph={<MoonGlyph illum={m.illum} phaseDeg={m.phaseDeg} size={30} />} />
       </div>
 
+      {buoy && (
+        <div className="card stack-sm">
+          <div className="row between">
+            <div className="eyebrow">Live buoy{buoy.name ? ` · ${buoy.name}` : ''}{buoy.distNm ? ` · ~${Math.round(buoy.distNm)} nm` : ''}</div>
+            <span className="faint" style={{ fontSize: 11 }}>{buoy.timestamp ? relTime(new Date(buoy.timestamp).getTime()) : ''}</span>
+          </div>
+          <div className="row wrap" style={{ gap: 'var(--sp-5)' }}>
+            {buoy.windKn != null && <div><div className="faint" style={{ fontSize: 11 }}>Wind</div><div style={{ fontWeight: 700 }}>{Math.round(buoy.windKn)}{buoy.gustKn ? ` g${Math.round(buoy.gustKn)}` : ''} kn {compass(buoy.windDir)}</div></div>}
+            {buoy.sstF != null && <div><div className="faint" style={{ fontSize: 11 }}>Water</div><div style={{ fontWeight: 700, color: sstColor(buoy.sstF) }}>{Math.round(buoy.sstF)}°F</div></div>}
+            {buoy.airTempF != null && <div><div className="faint" style={{ fontSize: 11 }}>Air</div><div style={{ fontWeight: 700 }}>{Math.round(buoy.airTempF)}°F</div></div>}
+            {buoy.pressureInHg != null && <div><div className="faint" style={{ fontSize: 11 }}>Baro</div><div style={{ fontWeight: 700 }}>{buoy.pressureInHg.toFixed(2)}"</div></div>}
+          </div>
+          <div className="faint" style={{ fontSize: 11 }}>Observed — the real reading vs. the model above.</div>
+        </div>
+      )}
+
+      {marineForecast?.text && (
+        <details className="card forecast-card">
+          <summary>
+            <span className="eyebrow">NWS marine forecast</span>
+            <span className="faint" style={{ fontSize: 11 }}> · {marineForecast.issued ? `issued ${relTime(new Date(marineForecast.issued).getTime())}` : 'tap to read'}</span>
+          </summary>
+          <pre className="forecast-text">{marineForecast.text}</pre>
+        </details>
+      )}
+
       {today.tideEvents.length >= 2 && (
         <div className="card stack-sm">
           <div className="row between">
@@ -127,6 +159,7 @@ export default function Dashboard() {
             {tideNow && <span className="faint" style={{ fontSize: 12 }}>{capitalize(tideNow.direction)}{nextTide ? ` · next ${nextTide.type === 'H' ? 'high' : 'low'} ${fmtTime(nextTide.time)}` : ''}</span>}
           </div>
           <TideCurve events={today.tideEvents} now={data.when} />
+          {data.tideStation && <div className="faint" style={{ fontSize: 11, textAlign: 'center' }}>Tides: {data.tideStation.name} · {data.tideStation.distNm} nm away</div>}
         </div>
       )}
 

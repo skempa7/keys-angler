@@ -1,6 +1,6 @@
 import {
   IcHome, IcCalendar, IcMoon, IcFish, IcBook, IcTrophy, IcStar,
-  IcCrab, IcLobster, IcShrimp, IcAnchor, IcShield, IcCog, IcMap,
+  IcCrab, IcLobster, IcShrimp, IcAnchor, IcShield, IcCog, IcMap, IcClock,
 } from '../components/icons.jsx'
 
 // Full grouped navigation (desktop sidebar + mobile "More" drawer).
@@ -11,6 +11,7 @@ export const NAV_GROUPS = [
       { to: '/', label: 'Should I Go', Icon: IcHome, end: true },
       { to: '/bite', label: 'Bite Times', Icon: IcMoon },
       { to: '/plan', label: 'Trip Plan', Icon: IcCalendar },
+      { to: '/calendar', label: 'Calendar', Icon: IcClock },
       { to: '/map', label: 'Map & Spots', Icon: IcMap },
     ],
   },

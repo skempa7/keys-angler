@@ -55,6 +55,34 @@ export function sampleHourly(json, date) {
   return out
 }
 
+const hourLabel = (h) => { const ap = h < 12 ? 'am' : 'pm'; const hh = h % 12 || 12; return `${hh}${ap}` }
+
+// Daytime (8a–9p) storm/lightning outlook for `date` from hourly precip probability
+// + WMO weather codes (95/96/99 = thunderstorm). The real summer-Keys safety factor.
+export function stormOutlook(wxJson, date) {
+  const h = wxJson?.hourly
+  if (!h?.time) return null
+  let maxProb = 0, stormHour = null, anyStorm = false
+  for (let i = 0; i < h.time.length; i++) {
+    const t = new Date(h.time[i])
+    if (t.getFullYear() !== date.getFullYear() || t.getMonth() !== date.getMonth() || t.getDate() !== date.getDate()) continue
+    const hr = t.getHours()
+    if (hr < 8 || hr > 21) continue
+    const prob = h.precipitation_probability?.[i] ?? 0
+    const code = h.weather_code?.[i] ?? 0
+    if (prob > maxProb) maxProb = prob
+    if (code >= 95 && !anyStorm) { anyStorm = true; stormHour = hr }
+  }
+  let level = 'low'
+  if (anyStorm || maxProb >= 60) level = 'high'
+  else if (maxProb >= 35) level = 'moderate'
+  const text =
+    level === 'high'
+      ? anyStorm ? `Thunderstorms likely${stormHour != null ? ` from ~${hourLabel(stormHour)}` : ''} — watch the sky and plan to be off the water early` : `High rain chance (${maxProb}%) — storms possible`
+      : level === 'moderate' ? `Scattered showers possible (${maxProb}%)` : 'Low storm risk today'
+  return { level, maxProb, stormHour, text }
+}
+
 // Surface-pressure change (hPa) from ~6 h before `date` to `date` (negative = falling).
 export function pressureTrend(wxJson, date) {
   const h = wxJson?.hourly

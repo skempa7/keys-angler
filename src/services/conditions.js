@@ -3,8 +3,9 @@
 // single failed/offline source degrades gracefully; sun/moon/tide math is local.
 import { cachedFetch } from './cache.js'
 import { fetchTidePredictions } from './tides.js'
-import { fetchMarine, fetchWeather, sampleHourly, pressureTrend } from './marine.js'
-import { fetchAlerts, parseAlerts } from './nws.js'
+import { fetchMarine, fetchWeather, sampleHourly, pressureTrend, stormOutlook } from './marine.js'
+import { fetchAlerts, parseAlerts, fetchMarineForecastText, fetchBuoy } from './nws.js'
+import { OBS_STATIONS, tideStation, distanceNm } from '../data/stations.js'
 import { parseHiLo, eventsForDay, tideStateAt } from '../engine/tideStage.js'
 import { solunarDay } from '../engine/solunar.js'
 import { buildBiteWindows } from '../engine/biteWindows.js'
@@ -73,11 +74,13 @@ export async function loadConditions({ lat, lon, station, zones, days = 4, when 
   const tideEnd = addDays(begin, 16)
   const omDays = Math.min(days + 1, 7)
 
-  const [tideRes, marineRes, wxRes, alertRes] = await Promise.all([
+  const [tideRes, marineRes, wxRes, alertRes, cwfRes, buoyRes] = await Promise.all([
     safe(() => cachedFetch({ key: `tides:${station}:${ymd(begin)}`, source: 'tides', maxAgeMs: 6 * 3600e3, forceFresh, fetcher: () => fetchTidePredictions(station, begin, tideEnd) })),
     safe(() => cachedFetch({ key: `marine:${r2(lat)},${r2(lon)}`, source: 'marine', maxAgeMs: 60 * 60e3, forceFresh, fetcher: () => fetchMarine(lat, lon, omDays) })),
     safe(() => cachedFetch({ key: `wx:${r2(lat)},${r2(lon)}`, source: 'wx', maxAgeMs: 60 * 60e3, forceFresh, fetcher: () => fetchWeather(lat, lon, omDays) })),
     safe(() => cachedFetch({ key: `alerts:${zones.join(',')}`, source: 'alerts', maxAgeMs: 30 * 60e3, forceFresh, fetcher: () => fetchAlerts(zones) })),
+    safe(() => cachedFetch({ key: 'cwf:KEY', source: 'cwf', maxAgeMs: 60 * 60e3, forceFresh, fetcher: () => fetchMarineForecastText() })),
+    safe(() => cachedFetch({ key: 'buoy', source: 'buoy', maxAgeMs: 30 * 60e3, forceFresh, fetcher: () => fetchBuoy(OBS_STATIONS.map((s) => s.id)) })),
   ])
 
   const tideEvents = tideRes?.data ? parseHiLo(tideRes.data) : []
@@ -104,6 +107,12 @@ export async function loadConditions({ lat, lon, station, zones, days = 4, when 
   })
   const nowScore = computeMomentScore(buildSample({ when, solunar: today.solunar, tideEvents: today.tideEvents, marineJson, wxJson, alerts }))
   const nextWindow = today.windows.filter((w) => w.end >= when).sort((a, b) => a.start - b.start)[0] || null
+  const marineForecast = cwfRes?.data || null
+  const buoyObs = buoyRes?.data || null
+  const buoyStation = buoyObs ? OBS_STATIONS.find((s) => s.id === buoyObs.station) : null
+  const stormToday = stormOutlook(wxJson, begin)
+  const tideStn = tideStation(station)
+  const tideStationInfo = tideStn ? { id: tideStn.id, name: tideStn.name, distNm: Math.round(distanceNm(lat, lon, tideStn.lat, tideStn.lon) * 10) / 10 } : null
 
   return {
     when,
@@ -112,11 +121,15 @@ export async function loadConditions({ lat, lon, station, zones, days = 4, when 
     nowScore,
     nowConditions: sampleConditions(marineJson, wxJson, when),
     tideNow: today.tideEvents.length ? tideStateAt(today.tideEvents, when) : null,
+    tideStation: tideStationInfo,
     alerts,
+    marineForecast,
+    buoy: buoyObs ? { ...buoyObs, name: buoyStation?.name, distNm: buoyStation?.distNm } : null,
+    stormToday,
     today,
     outlook,
     nextWindow,
-    sources: { tides: meta(tideRes), marine: meta(marineRes), wx: meta(wxRes), alerts: meta(alertRes) },
+    sources: { tides: meta(tideRes), marine: meta(marineRes), wx: meta(wxRes), alerts: meta(alertRes), cwf: meta(cwfRes), buoy: meta(buoyRes) },
   }
 }
 

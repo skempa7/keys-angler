@@ -53,3 +53,14 @@ export async function fetchLatestObs(stationId) {
     sstF: cToF(p.seaSurfaceTemperature?.value),
   }
 }
+
+// Try buoy/C-MAN stations in order; return the first with usable observations.
+export async function fetchBuoy(stationIds) {
+  for (const id of stationIds) {
+    try {
+      const o = await fetchLatestObs(id)
+      if (o && (o.windKn != null || o.sstF != null || o.airTempF != null)) return o
+    } catch { /* try next */ }
+  }
+  return null
+}
