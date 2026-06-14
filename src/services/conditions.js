@@ -68,11 +68,13 @@ const meta = (res) => ({
 
 export async function loadConditions({ lat, lon, station, zones, days = 4, when = new Date(), forceFresh = false }) {
   const begin = startOfDay()
-  const end = addDays(begin, days + 1)
+  // Cache a generous fixed tide window keyed by station+day only, so any `days`
+  // value reads the same cache — offline stays bulletproof across screens.
+  const tideEnd = addDays(begin, 16)
   const omDays = Math.min(days + 1, 7)
 
   const [tideRes, marineRes, wxRes, alertRes] = await Promise.all([
-    safe(() => cachedFetch({ key: `tides:${station}:${ymd(begin)}:${days}`, source: 'tides', maxAgeMs: 6 * 3600e3, forceFresh, fetcher: () => fetchTidePredictions(station, begin, end) })),
+    safe(() => cachedFetch({ key: `tides:${station}:${ymd(begin)}`, source: 'tides', maxAgeMs: 6 * 3600e3, forceFresh, fetcher: () => fetchTidePredictions(station, begin, tideEnd) })),
     safe(() => cachedFetch({ key: `marine:${r2(lat)},${r2(lon)}`, source: 'marine', maxAgeMs: 60 * 60e3, forceFresh, fetcher: () => fetchMarine(lat, lon, omDays) })),
     safe(() => cachedFetch({ key: `wx:${r2(lat)},${r2(lon)}`, source: 'wx', maxAgeMs: 60 * 60e3, forceFresh, fetcher: () => fetchWeather(lat, lon, omDays) })),
     safe(() => cachedFetch({ key: `alerts:${zones.join(',')}`, source: 'alerts', maxAgeMs: 30 * 60e3, forceFresh, fetcher: () => fetchAlerts(zones) })),
