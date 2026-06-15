@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useRewards } from '../hooks/useRewards.js'
 import { db } from '../db/db.js'
 import { calibration } from '../engine/personalEdge.js'
+import { buildCalibration } from '../engine/biteCalibration.js'
 import { fmtDateShort } from '../utils/format.js'
 import { IcTrophy, IcFish, IcStar, IcWaves, IcMap, IcMedal, IcHook, IcPin } from '../components/icons.jsx'
 
@@ -16,6 +17,7 @@ export default function Logbook() {
   const c = r.counts
   const catches = useLiveQuery(() => db.catches.toArray(), [], [])
   const cal = calibration(catches || [])
+  const bc = buildCalibration(catches || [])
   return (
     <div className="stack">
       <header className="page-head">
@@ -36,9 +38,17 @@ export default function Logbook() {
 
       {cal && (
         <div className="card stack-sm">
-          <div className="eyebrow">Calibration · does the score track your fish?</div>
-          <div className="rank-name">{cal.avg}<span className="faint" style={{ fontSize: 18 }}> /100 avg at your catches</span></div>
-          <div className="muted" style={{ fontSize: 13 }}>{cal.pctGood}% of your {cal.n} score-stamped catches landed in a Good-or-better window (60+). The more you log, the more the score earns its keep on your water.</div>
+          <div className="row between">
+            <div className="eyebrow">Calibration · does the score rank your fish?</div>
+            <span className="tag" style={{ background: 'var(--surface-2)', color: bc.gated ? 'var(--good)' : 'var(--text-faint)' }}>{bc.tier}</span>
+          </div>
+          <div className="rank-name">{cal.pctGood}%<span className="faint" style={{ fontSize: 18 }}> of your fish on a Good+ score</span></div>
+          <div className="muted" style={{ fontSize: 13 }}>
+            The score ranks your productive moments well — this is a ranking stat, not a hit-rate (blanks aren't logged).{' '}
+            {bc.gated
+              ? `Forecast now tuned to your water from ${bc.n} fish across ${bc.nEff} days.`
+              : `Log fish across ${bc.need} days (${bc.nEff}/${bc.need} so far) and the forecast starts tuning to you.`}
+          </div>
         </div>
       )}
 

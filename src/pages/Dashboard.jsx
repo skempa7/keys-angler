@@ -24,7 +24,7 @@ import { IcStorm, IcWaves, IcPin, IcMoon, IcSun } from '../components/icons.jsx'
 const MOMENT_ICONS = { IcWaves, IcMoon, IcSun }
 
 export default function Dashboard() {
-  const { data, loading, error, refreshing, online, refresh } = useConditions({ days: 5 })
+  const { data, loading, error, refreshing, online, refresh, cal } = useConditions({ days: 5 })
   const activeLoc = useActiveLocation()
   const catches = useLiveQuery(() => db.catches.toArray(), [], [])
   const [tick, setTick] = useState(() => Date.now())
@@ -167,7 +167,9 @@ export default function Dashboard() {
       <div className="card stack-sm">
         <div className="row between">
           <div className="h2">What's driving the score</div>
-          <span className="faint" style={{ fontSize: 12 }}>tap a factor</span>
+          {cal?.gated
+            ? <span className="tag" style={{ background: 'var(--surface-2)', color: 'var(--good)' }}>Tuned · {cal.n} fish</span>
+            : <span className="faint" style={{ fontSize: 12 }}>tap a factor</span>}
         </div>
         <FactorList factors={nowScore.factors} />
       </div>

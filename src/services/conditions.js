@@ -87,7 +87,7 @@ const meta = (res) => ({
   ok: !!res,
 })
 
-export async function loadConditions({ lat, lon, station, zones, days = 4, when = new Date(), forceFresh = false }) {
+export async function loadConditions({ lat, lon, station, zones, days = 4, when = new Date(), forceFresh = false, tuning = null }) {
   const begin = startOfDay()
   // Cache a generous fixed tide window keyed by station+day only, so any `days`
   // value reads the same cache — offline stays bulletproof across screens.
@@ -115,17 +115,17 @@ export async function loadConditions({ lat, lon, station, zones, days = 4, when 
     const dayTide = eventsForDay(tideEvents, day)
     const windows = buildBiteWindows(solunar, dayTide)
     const sampleWhen = windows[0]?.center || new Date(day.getFullYear(), day.getMonth(), day.getDate(), 12)
-    const s = computeMomentScore(buildSample({ when: sampleWhen, solunar, tideEvents: dayTide, marineJson, wxJson, alerts }))
+    const s = computeMomentScore(buildSample({ when: sampleWhen, solunar, tideEvents: dayTide, marineJson, wxJson, alerts }), tuning)
     outlook.push({ date: day, solunar, tideEvents: dayTide, windows, score: s.score, verdict: s.verdict })
   }
 
   const today = outlook[0]
   today.hourlyScores = Array.from({ length: 24 }, (_, h) => {
     const at = new Date(begin.getFullYear(), begin.getMonth(), begin.getDate(), h, 0, 0)
-    const s = computeMomentScore(buildSample({ when: at, solunar: today.solunar, tideEvents: today.tideEvents, marineJson, wxJson, alerts }))
+    const s = computeMomentScore(buildSample({ when: at, solunar: today.solunar, tideEvents: today.tideEvents, marineJson, wxJson, alerts }), tuning)
     return { hour: h, score: s.score, tone: s.verdict.tone }
   })
-  const nowScore = computeMomentScore(buildSample({ when, solunar: today.solunar, tideEvents: today.tideEvents, marineJson, wxJson, alerts }))
+  const nowScore = computeMomentScore(buildSample({ when, solunar: today.solunar, tideEvents: today.tideEvents, marineJson, wxJson, alerts }), tuning)
   const nextWindow = today.windows.filter((w) => w.end >= when).sort((a, b) => a.start - b.start)[0] || null
   const marineForecast = cwfRes?.data || null
   const buoyObs = buoyRes?.data || null
@@ -180,6 +180,7 @@ export function snapshotFromConditions(data, coords) {
       waveFt: c.waveFt ?? null, sstF: c.sstF ?? null,
       pressure: c.pressure ?? null, pressureTrend: data?.pressureTrend ?? null,
       tideDir: t?.direction ?? null, tideFlow: t?.flow != null ? Math.round(t.flow * 100) / 100 : null,
+      lunarStrength: sol?.lunarStrength != null ? Math.round(sol.lunarStrength * 100) / 100 : null,
     },
   }
 }

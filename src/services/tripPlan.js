@@ -40,7 +40,7 @@ function speciesBrief(speciesId, date) {
   }
 }
 
-export async function planTrip({ date, zoneId, lat, lon, station, zones, departISO }) {
+export async function planTrip({ date, zoneId, lat, lon, station, zones, departISO, tuning = null }) {
   const day0 = new Date(date.getFullYear(), date.getMonth(), date.getDate())
   const next = new Date(day0); next.setDate(next.getDate() + 1)
   const daysOut = Math.round((day0 - startToday()) / 86_400_000)
@@ -62,7 +62,7 @@ export async function planTrip({ date, zoneId, lat, lon, station, zones, departI
   const solunar = solunarDay(day0, lat, lon)
   const windows = buildBiteWindows(solunar, tideEvents)
   const depart = departISO ? new Date(departISO) : windows[0]?.center || new Date(day0.getFullYear(), day0.getMonth(), day0.getDate(), 7)
-  const scored = computeMomentScore(buildSample({ when: windows[0]?.center || depart, solunar, tideEvents, marineJson, wxJson, alerts }))
+  const scored = computeMomentScore(buildSample({ when: windows[0]?.center || depart, solunar, tideEvents, marineJson, wxJson, alerts }), tuning)
   const conditions = sampleConditions(marineJson, wxJson, depart)
   const zone = ZONE_BY_ID[zoneId]
 

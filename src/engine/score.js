@@ -35,7 +35,11 @@ function lightFactor(when, sun) {
 
 // sample: { when, solunar, tideState, wind:{speed,gust,dir}, wave:{height,period},
 //           sstF, pressureTrend, sun:{rise,set}, alerts:[{event,...}] }
-export function computeMomentScore(sample) {
+// tuning (optional): { factorWeights: { solunar, tide, ... } } per-factor multipliers from
+// the personal calibration. STRICT no-op when absent or all-1.0 — every existing caller is
+// byte-for-byte unchanged. Weights are renormalized to the original total so the 0–100 scale
+// and the additive/transparent property are preserved; the safety override still applies last.
+export function computeMomentScore(sample, tuning = null) {
   const f = []
 
   // Solunar period (in/near a major or minor) + the day's lunar strength.
@@ -78,6 +82,23 @@ export function computeMomentScore(sample) {
   const presScore = pt == null ? 0.6 : pt < -1.5 ? 0.95 : pt < -0.4 ? 0.8 : pt < 0.4 ? 0.6 : pt < 1.5 ? 0.45 : 0.3
   f.push(factor('pressure', 'Barometric trend', 7, presScore,
     pt == null ? 'No pressure trend.' : pt < -0.4 ? `Falling (${pt.toFixed(1)} hPa/6h) — often turns fish on.` : pt > 0.4 ? `Rising (+${pt.toFixed(1)} hPa/6h) — can slow the bite.` : 'Steady pressure.'))
+
+  // Personal tuning: bend factor weights toward the angler's log. No-op unless multipliers
+  // are present AND at least one ≠ 1 — otherwise `f` is left untouched (protects every caller).
+  const mults = tuning?.factorWeights
+  if (mults && f.some((x) => (mults[x.key] ?? 1) !== 1)) {
+    const baseTotal = f.reduce((s, x) => s + x.weight, 0)
+    const tunedW = f.map((x) => x.weight * (mults[x.key] ?? 1))
+    const sumTuned = tunedW.reduce((s, w) => s + w, 0)
+    const scale = sumTuned > 0 ? baseTotal / sumTuned : 1
+    f.forEach((x, i) => {
+      x.baseWeight = x.weight
+      x.weight = tunedW[i] * scale
+      x.contribution = x.weight * x.score
+      x.deltaPct = Math.round(((x.weight - x.baseWeight) / x.baseWeight) * 100)
+      x.tuned = (mults[x.key] ?? 1) !== 1
+    })
+  }
 
   let total = f.reduce((s, x) => s + x.contribution, 0)
 

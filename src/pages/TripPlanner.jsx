@@ -14,6 +14,7 @@ import FactorList from '../components/FactorList.jsx'
 import TripFishMap from '../components/TripFishMap.jsx'
 import { baitList, zoneTargets, depthLabel, shortTide } from '../engine/tripTargets.js'
 import { mergeLoadouts } from '../engine/loadout.js'
+import { buildCalibration } from '../engine/biteCalibration.js'
 import { downloadICS, tripCalendarEvent } from '../services/phase2.js'
 import { graduateTrip } from '../services/tripLog.js'
 
@@ -55,6 +56,9 @@ export default function TripPlanner() {
   const loc = useActiveLocation()
   // Fetch ALL then JS-filter/sort — orderBy('date') would drop template rows (no date index).
   const trips = useLiveQuery(() => db.trips.toArray(), [], [])
+  const allCatches = useLiveQuery(() => db.catches.toArray(), [], [])
+  const cal = buildCalibration(allCatches || [])
+  const tuning = cal.gated ? { factorWeights: cal.factorWeights } : null
   const [form, setForm] = useState({ dateStr: tomorrowStr(), zoneId: 'reef', departTime: '06:30', returnTime: '', party: '', notes: '' })
   const [view, setView] = useState('home')
   const [current, setCurrent] = useState(null)
@@ -68,7 +72,7 @@ export default function TripPlanner() {
     try {
       const date = parseDate(form.dateStr)
       const departISO = `${form.dateStr}T${form.departTime || '06:30'}`
-      const plan = await planTrip({ date, zoneId: form.zoneId, lat: loc.lat, lon: loc.lon, station: nearestStation(loc.lat, loc.lon).id, zones: ALL_MARINE_ZONES, departISO })
+      const plan = await planTrip({ date, zoneId: form.zoneId, lat: loc.lat, lon: loc.lon, station: nearestStation(loc.lat, loc.lon).id, zones: ALL_MARINE_ZONES, departISO, tuning })
       const meta = { ...form, locName: loc.name }
       const id = await db.trips.add({ date: date.getTime(), dateStr: form.dateStr, zoneId: form.zoneId, departISO, returnTime: form.returnTime, party: form.party, notes: form.notes, plan, locName: loc.name, createdAt: Date.now(), status: 'planned' })
       setCurrent({ id, plan, meta }); setView('brief')
