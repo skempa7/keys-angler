@@ -132,7 +132,12 @@ export default function MapSpots() {
 
       <div className="card stack-sm">
         <div className="eyebrow">Mapped spots · {mapped.length}</div>
-        {mapped.length === 0 && <p className="faint" style={{ fontSize: 13 }}>No pinned spots yet. Tap “Drop a spot”, then tap the map (or use My location).</p>}
+        {mapped.length === 0 && (
+          <div className="placeholder">
+            <div className="big"><IcPin width={30} height={30} /></div>
+            <p>No pinned spots yet. Tap “Drop a spot”, then tap the map (or use My location).</p>
+          </div>
+        )}
         {mapped.map((s) => {
           const score = s.kind === 'crab' ? crabHabitatScore({ bottom: s.bottom, depthFt: s.depth ? Number(s.depth) : null }) : null
           return (

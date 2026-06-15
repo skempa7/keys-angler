@@ -404,6 +404,13 @@ textarea.input { min-height: 80px; padding: var(--sp-3); resize: vertical; }
 .loc-chip:active { transform: scale(.97); }
 .loc-chip svg { color: var(--accent); }
 
+/* ---- Empty states ------------------------------------------------------ */
+.empty-state { display: grid; justify-items: center; text-align: center; gap: 8px; padding: 28px 20px; }
+.empty-state-glyph { width: 60px; height: 60px; display: grid; place-items: center; border-radius: 50%; background: var(--accent-soft); color: var(--accent); margin-bottom: 2px; }
+.empty-state-title { font-weight: 750; font-size: 15.5px; }
+.empty-state .muted { font-size: 13.5px; line-height: 1.5; }
+.empty-state-action { margin-top: 6px; }
+
 /* ---- Module tiles ------------------------------------------------------ */
 .tile-grid { display: grid; grid-template-columns: 1fr; gap: var(--sp-2); }
 @media (min-width: 560px) { .tile-grid { grid-template-columns: 1fr 1fr; } }

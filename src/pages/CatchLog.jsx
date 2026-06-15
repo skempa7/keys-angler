@@ -8,7 +8,7 @@ import { speciesPatterns, overallStats, hourHistogram } from '../engine/patterns
 import { useConditions } from '../hooks/useConditions.js'
 import { snapshotFromConditions } from '../services/conditions.js'
 import { fmtTime, fmtDateShort } from '../utils/format.js'
-import { IcX, IcShare, IcFish } from '../components/icons.jsx'
+import { IcX, IcShare, IcFish, IcHook } from '../components/icons.jsx'
 import { shareCatchCard } from '../services/catchCard.js'
 import { haptic } from '../utils/haptic.js'
 
@@ -194,7 +194,12 @@ export default function CatchLog() {
 
       <div className="card stack-sm">
         <div className="eyebrow">Recent · tap to edit</div>
-        {list.length === 0 && <p className="faint" style={{ fontSize: 13 }}>No catches yet. Tap “Hooked up” the second you boat one — species &amp; size can wait.</p>}
+        {list.length === 0 && (
+          <div className="placeholder">
+            <div className="big"><IcHook width={30} height={30} /></div>
+            <p>No catches yet. Tap “Hooked up” the second you boat one — species &amp; size can wait.</p>
+          </div>
+        )}
         {list.map((c) => (
           <div key={c.id} className="catch-row" onClick={() => editCatch(c)} style={{ cursor: 'pointer' }}>
             <div style={{ flex: 1, minWidth: 0 }}>

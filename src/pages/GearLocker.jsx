@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db.js'
-import { IcX } from '../components/icons.jsx'
+import { IcX, IcAnchor } from '../components/icons.jsx'
+import EmptyState from '../components/EmptyState.jsx'
 
 const CATEGORIES = ['Rods', 'Reels', 'Line', 'Leaders', 'Lures / flies', 'Bait rigs', 'Traps', 'Nets']
 const BLANK_BOAT = { name: '', lengthFt: '', draftFt: '', rangeNm: '', electronics: '', notes: '' }
@@ -84,7 +85,7 @@ export default function GearLocker() {
       </div>
 
       {byCat.length === 0 ? (
-        <div className="card placeholder"><p className="muted">Your locker is empty. Add rods, reels, line classes, leaders, lures, traps &amp; nets — the app will only suggest rigs you can actually build.</p></div>
+        <EmptyState icon={IcAnchor} title="Your locker is empty" note="Add rods, reels, line classes, leaders, lures, traps & nets — the app will only suggest rigs you can actually build." />
       ) : (
         byCat.map(({ cat, items }) => (
           <div key={cat} className="card stack-sm">
