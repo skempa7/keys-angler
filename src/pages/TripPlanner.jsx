@@ -77,6 +77,8 @@ export default function TripPlanner() {
 
   const openTrip = (t) => { setCurrent({ id: t.id, plan: t.plan, meta: { dateStr: t.dateStr, departTime: (t.departISO || '').slice(11, 16), returnTime: t.returnTime, party: t.party, notes: t.notes, locName: t.locName } }); setView('brief') }
   const del = (e, id) => { e.stopPropagation(); db.trips.delete(id) }
+  const copyToForm = (t) => { setForm({ dateStr: t.dateStr || form.dateStr, departTime: (t.departISO || '').slice(11, 16) || '06:30', zoneId: t.zoneId, returnTime: t.returnTime || '', party: t.party || '', notes: t.notes || '' }); window.scrollTo({ top: 0, behavior: 'smooth' }); note('Loaded into the planner — adjust the date and rebuild.') }
+  const renameTrip = (t) => { const n = window.prompt('Name this trip', t.name || ''); if (n != null) db.trips.update(t.id, { name: n.trim() }) }
 
   if (view === 'brief' && current) {
     return <Briefing current={current} loc={loc} onBack={() => { setCurrent(null); setView('home') }} note={note} msg={msg} />
@@ -117,10 +119,14 @@ export default function TripPlanner() {
         <div className="eyebrow">Saved trips</div>
         {(!trips || trips.length === 0) && <p className="faint" style={{ fontSize: 13 }}>No trips yet. Build one above while on WiFi — it’ll be ready offline on the water.</p>}
         {(trips || []).map((t) => (
-          <div key={t.id} className="catch-row" onClick={() => openTrip(t)} style={{ cursor: 'pointer' }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 650 }}>{fmtDateShort(new Date(t.date))} · {ZONE_BY_ID[t.zoneId]?.short}</div>
-              <div className="faint" style={{ fontSize: 12 }}>Score {t.plan?.score} · {t.plan?.verdict?.label}</div>
+          <div key={t.id} className="catch-row">
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 650, cursor: 'pointer' }} onClick={() => openTrip(t)}>{t.name || `${fmtDateShort(new Date(t.date))} · ${ZONE_BY_ID[t.zoneId]?.short}`}</div>
+              <div className="faint" style={{ fontSize: 12 }}>{t.name ? `${fmtDateShort(new Date(t.date))} · ` : ''}Score {t.plan?.score} · {t.plan?.verdict?.label}</div>
+              <div className="row" style={{ gap: 6, marginTop: 6 }}>
+                <button className="chip" onClick={() => copyToForm(t)}>Copy</button>
+                <button className="chip" onClick={() => renameTrip(t)}>Rename</button>
+              </div>
             </div>
             <button className="icon-btn" onClick={(e) => del(e, t.id)} aria-label="Delete trip"><IcX width={18} height={18} /></button>
           </div>
@@ -169,6 +175,7 @@ function Briefing({ current, loc, onBack, note }) {
   if (cc.airF != null && cc.airF <= 68) pack.push('A layer for the run out')
   pack.push('Ice · water · chum')
   const permits = [...new Set(targetsDeep.map((t) => getReg(t.sp.regsKey)?.permit).filter(Boolean))]
+  const conf = !p.forecastAvailable ? { pm: 15, label: 'Low' } : p.daysOut <= 2 ? { pm: 6, label: 'High' } : { pm: 10, label: 'Medium' }
 
   const share = async () => {
     const text = buildFloatPlan(p, meta, loc)
@@ -186,6 +193,7 @@ function Briefing({ current, loc, onBack, note }) {
         <div className="eyebrow">{fmtDateShort(date)} · {p.zoneName}</div>
         <h1 className="display" style={{ color: toneColor(p.verdict?.tone) }}>{p.verdict?.label}</h1>
         <p className="muted">Score {p.score}/100 · Depart {meta.departTime || '—'} · <strong style={{ color: 'var(--gold)' }}>Return by {returnBy}</strong></p>
+        <p className="faint" style={{ fontSize: 12 }}>±{conf.pm} · {conf.label} confidence{!p.forecastAvailable ? ' — wind &amp; seas aren’t forecast this far out yet' : ''}</p>
       </header>
 
       {!p.forecastAvailable && (
