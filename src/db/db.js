@@ -37,4 +37,17 @@ db.version(2).stores({
   trapSets: '++id, setAt, pulledAt',
 })
 
+// v3: dedicated PAST-trip logbook (separate from the planner `trips` table, which
+// stays a forward-looking cached-briefing store). Dexie accumulates each version's
+// stores spec, so v1/v2 tables are inherited automatically — we declare ONLY the new
+// ones (same pattern as v2 above). A table is dropped only by setting it to null in a
+// later version, never by omission.
+db.version(3).stores({
+  // a logged past trip; favorite is an indexable INTEGER 0|1, folderIds is a
+  // multiEntry array index (always an array, never a scalar — Dexie throws otherwise)
+  logTrips: '++id, date, dateStr, zoneId, favorite, source, sourceTripId, *folderIds, createdAt',
+  // user-created collections ("Tarpon", "Bahia Honda")
+  logFolders: '++id, name, kind, sort, createdAt',
+})
+
 export default db

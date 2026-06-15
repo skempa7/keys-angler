@@ -17,6 +17,7 @@ import GearLocker from './pages/GearLocker.jsx'
 import GrandSlam from './pages/GrandSlam.jsx'
 import Settings from './pages/Settings.jsx'
 import Logbook from './pages/Logbook.jsx'
+import TripLog from './pages/TripLog.jsx'
 import OnWater from './pages/OnWater.jsx'
 
 // Code-split the map page so Leaflet stays out of the initial bundle.
@@ -39,6 +40,7 @@ export default function App() {
           <Route path="target" element={<Species />} />
           <Route path="regs" element={<Regs />} />
           <Route path="log" element={<CatchLog />} />
+          <Route path="trips" element={<TripLog />} />
           <Route path="crab" element={<StoneCrab />} />
           <Route path="lobster" element={<Lobster />} />
           <Route path="shrimp" element={<Shrimp />} />

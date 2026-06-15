@@ -11,6 +11,11 @@ const RANKS = [
   { name: 'Conch', min: 2600 },
 ]
 
+// NOTE: `trips` here is ONLY the planner's db.trips (planned/cached briefings).
+// XP intentionally does NOT count the Trip Log (db.logTrips): backfilling historical
+// trips must not balloon XP or auto-earn the Skipper badge. If logged trips should
+// ever grant XP, add a SEPARATE term + badge below AND de-dup graduated trips
+// (a graduated trip exists in both db.trips and db.logTrips).
 export function computeRewards({ catches = [], spots = [], trips = [], openDays = 0 }) {
   const slams = computeSlams(catches)
   const species = new Set(catches.map((c) => c.species))

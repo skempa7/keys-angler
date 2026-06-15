@@ -9,8 +9,10 @@ import { fmtTime, fmtRange, fmtDateShort, toneColor, strengthColor, compass, sst
 import { IcX } from '../components/icons.jsx'
 import WindArrow from '../components/WindArrow.jsx'
 import { downloadICS, tripCalendarEvent } from '../services/phase2.js'
+import { graduateTrip } from '../services/tripLog.js'
 
 const pad = (n) => String(n).padStart(2, '0')
+const startOfToday = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d }
 const tomorrowStr = () => { const d = new Date(); d.setDate(d.getDate() + 1); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` }
 const parseDate = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d) }
 
@@ -111,6 +113,7 @@ function buildFloatPlan(p, meta, loc) {
 
 function Briefing({ current, loc, onBack, note }) {
   const { plan: p, meta } = current
+  const [grad, setGrad] = useState(false)
   const date = new Date(p.date)
   const sunset = p.sunset ? new Date(p.sunset) : null
   const returnBy = meta.returnTime || (sunset ? fmtTime(sunset) : 'sunset')
@@ -176,6 +179,9 @@ function Briefing({ current, loc, onBack, note }) {
 
       <div className="card stack-sm">
         <div className="eyebrow">Export & safety</div>
+        {new Date(p.date) < startOfToday() && (
+          <button className="btn ghost block" disabled={grad} onClick={async () => { setGrad(true); try { const r = await graduateTrip({ id: current.id, plan: p, meta }); note(r ? 'Saved to your Trip Log.' : 'Already in your Trip Log.') } finally { setGrad(false) } }}>Log this as a past trip</button>
+        )}
         <button className="btn primary block" onClick={share}>Share float plan</button>
         <button className="btn ghost block" onClick={() => downloadICS('keys-angler-trip.ics', [tripCalendarEvent(p, meta)])}>Add to calendar (.ics)</button>
         <button className="btn ghost block" onClick={() => window.print()}>Print / save plan</button>

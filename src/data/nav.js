@@ -1,5 +1,5 @@
 import {
-  IcHome, IcCalendar, IcMoon, IcFish, IcBook, IcTrophy, IcStar,
+  IcHome, IcCalendar, IcMoon, IcFish, IcBook, IcHook, IcTrophy, IcStar,
   IcCrab, IcLobster, IcShrimp, IcAnchor, IcShield, IcCog, IcMap, IcClock, IcWaves,
 } from '../components/icons.jsx'
 
@@ -20,7 +20,8 @@ export const NAV_GROUPS = [
     title: 'Catch',
     items: [
       { to: '/target', label: 'Target', Icon: IcFish },
-      { to: '/log', label: 'Catch Log', Icon: IcBook },
+      { to: '/log', label: 'Catch Log', Icon: IcHook },
+      { to: '/trips', label: 'Trip Log', Icon: IcBook },
       { to: '/slam', label: 'Grand Slam', Icon: IcTrophy },
       { to: '/logbook', label: 'Logbook', Icon: IcStar },
     ],
