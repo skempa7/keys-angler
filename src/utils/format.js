@@ -50,6 +50,13 @@ export const sstColor = (f) => {
   return 'var(--poor)'
 }
 
+// UV index → label + color (NWS bands).
+export const uvLabel = (uv) => (uv == null ? '' : uv < 3 ? 'Low' : uv < 6 ? 'Moderate' : uv < 8 ? 'High' : uv < 11 ? 'Very high' : 'Extreme')
+export const uvColor = (uv) => (uv == null ? 'var(--text)' : uv < 3 ? 'var(--good)' : uv < 6 ? 'var(--caution)' : uv < 8 ? 'var(--poor)' : 'var(--bad)')
+
+// Hour-of-day → compact label ("Now" handled by caller): 1p, 11a, 12p.
+export const fmtHour = (h) => `${h % 12 || 12}${h < 12 ? 'a' : 'p'}`
+
 // Open-Meteo WMO weather codes → short label.
 export function weatherLabel(code) {
   if (code == null) return ''

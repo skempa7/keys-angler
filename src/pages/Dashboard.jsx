@@ -16,6 +16,7 @@ import OfflineButton from '../components/OfflineButton.jsx'
 import { HOME_PORT } from '../config.js'
 import { fmtTime, fmtRange, fmtDayShort, relTime, compass, toneColor, weatherLabel, dayLabel, sstColor } from '../utils/format.js'
 import WindArrow from '../components/WindArrow.jsx'
+import WeatherCard from '../components/WeatherCard.jsx'
 import { IcStorm, IcWaves } from '../components/icons.jsx'
 
 export default function Dashboard() {
@@ -55,6 +56,13 @@ export default function Dashboard() {
   const stale = !online || Object.values(sources).some((s) => s.stale)
   const nextTide = today.tideEvents.find((e) => e.time > data.when)
   const m = today.solunar.moon
+  // Week-at-a-glance summary (fills the outlook's right side on wide screens).
+  const dn = (d) => (d === outlook[0] ? 'Today' : fmtDayShort(d.date))
+  const bestDay = outlook.reduce((a, b) => (b.score > a.score ? b : a), outlook[0])
+  const peakSol = outlook.reduce((a, b) => ((b.solunar?.lunarStrength ?? 0) > (a.solunar?.lunarStrength ?? 0) ? b : a), outlook[0])
+  const primeDays = outlook.filter((d) => d.score >= 78).length
+  const weekTrend = outlook[outlook.length - 1].score - outlook[0].score
+  const weekNote = primeDays >= 2 ? `${primeDays} prime days this week — pick your window.` : weekTrend <= -10 ? 'Bite eases as the week goes on.' : weekTrend >= 10 ? 'Building later in the week.' : 'Steady, fishable week ahead.'
 
   return (
     <div className="stack">
@@ -122,6 +130,8 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      <WeatherCard wx={data.weatherToday} sun={today.solunar.sun} when={data.when} />
 
       {edge && (
         <div className="card stack-sm">
@@ -220,15 +230,24 @@ export default function Dashboard() {
 
       <div className="card stack-sm">
         <div className="eyebrow">Next {outlook.length} days</div>
-        <div className="outlook">
-          {outlook.map((d, i) => (
-            <div key={i} className="day-card">
-              <div className="day-name">{i === 0 ? 'Today' : fmtDayShort(d.date)}</div>
-              <div className="day-score" style={{ color: toneColor(d.verdict.tone) }}>{d.score}</div>
-              <div className="day-verdict faint">{dayLabel(d.score)}</div>
-              {d.windows[0] && <div className="day-window">{fmtTime(d.windows[0].center)}</div>}
-            </div>
-          ))}
+        <div className="outlook-wrap">
+          <div className="outlook">
+            {outlook.map((d, i) => (
+              <div key={i} className="day-card">
+                <div className="day-name">{i === 0 ? 'Today' : fmtDayShort(d.date)}</div>
+                <div className="day-score" style={{ color: toneColor(d.verdict.tone) }}>{d.score}</div>
+                <div className="day-verdict faint">{dayLabel(d.score)}</div>
+                {d.windows[0] && <div className="day-window">{fmtTime(d.windows[0].center)}</div>}
+              </div>
+            ))}
+          </div>
+          <div className="week-summary">
+            <div className="eyebrow">This week</div>
+            <div className="wk-row"><span className="faint">Best day</span><strong style={{ color: toneColor(bestDay.verdict.tone) }}>{dn(bestDay)} · {bestDay.score} {dayLabel(bestDay.score)}</strong></div>
+            <div className="wk-row"><span className="faint">Peak solunar</span><strong>{dn(peakSol)} · {peakSol.solunar.moon.phaseName}</strong></div>
+            <div className="wk-note">{weekNote}</div>
+            <Link to="/calendar" className="chip" style={{ alignSelf: 'flex-start' }}>Open month calendar →</Link>
+          </div>
         </div>
       </div>
 

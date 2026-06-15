@@ -11,7 +11,12 @@ const MARINE_VARS = [
 ]
 const WX_VARS = [
   'wind_speed_10m', 'wind_gusts_10m', 'wind_direction_10m',
-  'surface_pressure', 'temperature_2m', 'weather_code', 'precipitation_probability',
+  'surface_pressure', 'temperature_2m', 'apparent_temperature', 'relative_humidity_2m',
+  'weather_code', 'precipitation_probability', 'uv_index',
+]
+const DAILY_VARS = [
+  'temperature_2m_max', 'temperature_2m_min', 'precipitation_probability_max',
+  'weather_code', 'uv_index_max', 'wind_speed_10m_max',
 ]
 
 export function fetchMarine(lat, lon, days = 7) {
@@ -23,7 +28,7 @@ export function fetchMarine(lat, lon, days = 7) {
 
 export function fetchWeather(lat, lon, days = 7) {
   const url =
-    `${FORECAST}?latitude=${lat}&longitude=${lon}&hourly=${WX_VARS.join(',')}` +
+    `${FORECAST}?latitude=${lat}&longitude=${lon}&hourly=${WX_VARS.join(',')}&daily=${DAILY_VARS.join(',')}` +
     `&forecast_days=${days}&past_days=2&wind_speed_unit=kn&temperature_unit=fahrenheit` +
     `&precipitation_unit=inch&timezone=${TZ}`
   return fetchJson(url)
@@ -52,6 +57,39 @@ export function sampleHourly(json, date) {
   if (idx < 0) return {}
   const out = { _time: h.time[idx] }
   for (const k of Object.keys(h)) if (k !== 'time') out[k] = h[k][idx]
+  return out
+}
+
+const ymd = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+
+// Daily summary for `date` from the Open-Meteo daily block (hi/lo/precip%/UV/code).
+export function dailyWeather(wxJson, date) {
+  const d = wxJson?.daily
+  if (!d?.time?.length) return null
+  const i = d.time.indexOf(ymd(date))
+  if (i < 0) return null
+  return {
+    hiF: d.temperature_2m_max?.[i] ?? null,
+    loF: d.temperature_2m_min?.[i] ?? null,
+    precipMax: d.precipitation_probability_max?.[i] ?? null,
+    uvMax: d.uv_index_max?.[i] ?? null,
+    windMaxKn: d.wind_speed_10m_max?.[i] ?? null,
+    code: d.weather_code?.[i] ?? null,
+  }
+}
+
+// Next `count` hourly cells from `date` forward — for the home-screen hourly strip.
+export function hourlyWeather(wxJson, date, count = 12) {
+  const h = wxJson?.hourly
+  if (!h?.time?.length) return []
+  let start = h.time.indexOf(hourKey(date))
+  if (start < 0) start = nearestIndex(h.time, date)
+  if (start < 0) return []
+  const out = []
+  for (let i = start; i < Math.min(start + count, h.time.length); i++) {
+    const t = new Date(h.time[i])
+    out.push({ time: t, hour: t.getHours(), tempF: h.temperature_2m?.[i] ?? null, code: h.weather_code?.[i] ?? null, precipProb: h.precipitation_probability?.[i] ?? null })
+  }
   return out
 }
 

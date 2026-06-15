@@ -543,3 +543,41 @@ textarea.input { min-height: 80px; padding: var(--sp-3); resize: vertical; }
   background: rgba(2,35,26,.95); color: #d6ffe9; border: 1px solid var(--good);
   border-radius: 12px; padding: 12px 14px; text-align: center; font-weight: 600;
 }
+
+/* ---- Weather card ------------------------------------------------------ */
+.weather-card { display: flex; flex-direction: column; gap: var(--sp-3); }
+.wx-top { display: flex; align-items: center; gap: var(--sp-3); }
+.wx-main { flex: 1; min-width: 0; }
+.wx-temp { font-family: var(--font-display, inherit); font-size: 46px; font-weight: 700; line-height: 1; }
+.wx-cond { color: var(--text-dim); font-size: 14px; margin-top: 2px; }
+.wx-hilo { text-align: right; font-size: 14px; color: var(--text); display: flex; flex-direction: column; gap: 3px; white-space: nowrap; }
+.wx-feels { color: var(--text-dim); font-size: 13px; }
+.wx-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-2); }
+.wx-metric { background: var(--surface-2); border: 1px solid var(--border-soft); border-radius: var(--r-2); padding: 8px 10px; min-width: 0; }
+.wx-metric .faint { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.wx-mv { font-weight: 700; font-size: 18px; margin-top: 2px; line-height: 1.1; }
+.wx-msub { font-size: 10.5px; color: var(--text-faint); font-weight: 600; margin-top: 1px; line-height: 1.15; }
+.wx-hours { display: flex; gap: var(--sp-2); overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch; }
+.wx-hour { flex: none; width: 52px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; border-radius: var(--r-2); background: var(--surface-2); }
+.wx-hour-t { font-size: 11px; color: var(--text-dim); font-weight: 600; }
+.wx-hour-temp { font-size: 13px; font-weight: 700; }
+.wx-hour-rain { font-size: 10.5px; color: var(--accent); min-height: 13px; }
+
+/* weather-glyph motion (globally disabled under prefers-reduced-motion below) */
+.wg-rays { transform-box: fill-box; transform-origin: center; animation: wg-spin 24s linear infinite; }
+@keyframes wg-spin { to { transform: rotate(360deg); } }
+.wg-rain line { transform-box: fill-box; animation: wg-drop 1.1s ease-in infinite; }
+.wg-rain line:nth-of-type(2) { animation-delay: .36s; }
+.wg-rain line:nth-of-type(3) { animation-delay: .72s; }
+@keyframes wg-drop { 0% { transform: translateY(-2px); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateY(5px); opacity: 0; } }
+
+/* ---- Outlook: day cards + this-week summary ---------------------------- */
+.outlook-wrap { display: flex; gap: var(--sp-3); align-items: stretch; }
+.outlook-wrap .outlook { flex: 0 1 auto; }
+.week-summary { flex: 1 1 190px; min-width: 170px; display: flex; flex-direction: column; gap: 6px; justify-content: center; padding-left: var(--sp-3); border-left: 1px solid var(--border-soft); }
+.wk-row { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; align-items: baseline; }
+.wk-note { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+@media (max-width: 640px) {
+  .outlook-wrap { flex-direction: column; }
+  .week-summary { border-left: none; border-top: 1px solid var(--border-soft); padding-left: 0; padding-top: var(--sp-3); flex-basis: auto; }
+}

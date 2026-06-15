@@ -3,7 +3,7 @@
 // single failed/offline source degrades gracefully; sun/moon/tide math is local.
 import { cachedFetch } from './cache.js'
 import { fetchTidePredictions } from './tides.js'
-import { fetchMarine, fetchWeather, sampleHourly, pressureTrend, stormOutlook } from './marine.js'
+import { fetchMarine, fetchWeather, sampleHourly, pressureTrend, stormOutlook, dailyWeather, hourlyWeather } from './marine.js'
 import { fetchAlerts, parseAlerts, fetchMarineForecastText, fetchBuoy } from './nws.js'
 import { OBS_STATIONS, tideStation, distanceNm } from '../data/stations.js'
 import { parseHiLo, eventsForDay, tideStateAt } from '../engine/tideStage.js'
@@ -53,10 +53,28 @@ export function sampleConditions(marineJson, wxJson, when) {
     gustKn: num(w.wind_gusts_10m),
     windDir: num(w.wind_direction_10m),
     airF: num(w.temperature_2m),
+    feelsF: num(w.apparent_temperature),
+    humidity: num(w.relative_humidity_2m),
+    uv: num(w.uv_index),
     pressure: num(w.surface_pressure),
     precipProb: num(w.precipitation_probability),
     weatherCode: num(w.weather_code),
     time: m._time || w._time || null,
+  }
+}
+
+// Home-screen weather panel: current + today's daily summary + an hourly strip.
+export function weatherToday(marineJson, wxJson, when, begin) {
+  if (!wxJson) return null
+  const now = sampleConditions(marineJson, wxJson, when)
+  const daily = dailyWeather(wxJson, begin)
+  return {
+    tempF: now.airF, feelsF: now.feelsF, humidity: now.humidity, uv: now.uv,
+    precipProb: now.precipProb, windKn: now.windKn, windDir: now.windDir,
+    code: now.weatherCode ?? daily?.code ?? null,
+    hiF: daily?.hiF ?? null, loF: daily?.loF ?? null,
+    precipMax: daily?.precipMax ?? null, uvMax: daily?.uvMax ?? null,
+    hourly: hourlyWeather(wxJson, when, 12),
   }
 }
 
@@ -120,6 +138,7 @@ export async function loadConditions({ lat, lon, station, zones, days = 4, when 
     lon,
     nowScore,
     nowConditions: sampleConditions(marineJson, wxJson, when),
+    weatherToday: weatherToday(marineJson, wxJson, when, begin),
     pressureTrend: wxJson ? pressureTrend(wxJson, when) : null,
     tideNow: today.tideEvents.length ? tideStateAt(today.tideEvents, when) : null,
     tideStation: tideStationInfo,
