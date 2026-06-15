@@ -15,6 +15,7 @@ body {
   background: var(--bg);
   background-image: var(--bg-grad);
   background-attachment: fixed;
+  transition: background-image 1.8s var(--ease);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overscroll-behavior-y: none;

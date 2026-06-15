@@ -6,11 +6,13 @@ import StatusBar from './StatusBar.jsx'
 import RewardsToast from './RewardsToast.jsx'
 import Onboarding from './Onboarding.jsx'
 import QuickLogSheet from './QuickLogSheet.jsx'
+import SkyBackground from './SkyBackground.jsx'
 import { IcFish } from './icons.jsx'
 
 export default function Layout() {
   return (
     <div className="app">
+      <SkyBackground />
       <Sidebar />
       <header className="topbar">
         <div className="brand">
