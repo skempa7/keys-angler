@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { SPECIES } from '../data/species.js'
 import { zoneTargets, depthLabel, shortTide, midDepth, FIT_LABEL } from '../engine/tripTargets.js'
+import { SEG, FIT_COLOR, depthY } from '../engine/crossSection.js'
 
 // "Where the fish are" — a schematic Keys cross-section (flats → reef → blue water)
 // with every species placed in its zone at its depth, the trip's targets lit up by
-// SST fit, plus an expandable ranked target list with the where-&-how.
-const SEG = { backcountry: [16, 108], reef: [122, 222], offshore: [236, 330] }
-const FIT_COLOR = { ideal: 'var(--good)', cool: 'var(--accent)', warm: 'var(--caution)', unknown: 'var(--text-faint)' }
-const depthY = (ft) => 24 + (Math.min(ft, 300) / 300) * 158
+// SST fit, plus an expandable ranked target list with the where-&-how. Geometry
+// (SEG/FIT_COLOR/depthY) is shared with SpotCrossSection via engine/crossSection.js.
 const firstSentence = (t) => (t || '').split(/(?<=[.])\s/)[0]
 
 export default function TripFishMap({ zoneId, sstF, biting = [] }) {
