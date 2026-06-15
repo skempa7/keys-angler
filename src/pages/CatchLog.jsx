@@ -82,6 +82,15 @@ export default function CatchLog() {
   const stats = overallStats(list)
   const hist = hourHistogram(list)
   const newDate = (ms) => new Date(ms)
+  const baitBoard = useMemo(() => {
+    const map = {}
+    for (const c of list) {
+      const b = (c.bait || '').trim(); if (!b) continue
+      const e = map[b.toLowerCase()] || (map[b.toLowerCase()] = { label: b, n: 0, best: 0, sp: new Set() })
+      e.n++; if (c.lengthIn > e.best) e.best = c.lengthIn; if (c.species) e.sp.add(c.species)
+    }
+    return Object.values(map).sort((a, b) => b.n - a.n).slice(0, 6)
+  }, [list])
 
   return (
     <div className="stack">
@@ -151,6 +160,18 @@ export default function CatchLog() {
             <div key={p.species} className="pattern">
               <div style={{ fontWeight: 650 }}>{p.species} <span className="faint">· {p.count}</span></div>
               <div className="muted" style={{ fontSize: 13 }}>{p.insights.length ? p.insights.join(' · ') : 'building a pattern…'}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {baitBoard.length > 0 && (
+        <div className="card stack-sm">
+          <div className="eyebrow">What's working · bait &amp; lures</div>
+          {baitBoard.map((b) => (
+            <div key={b.label} className="row between" style={{ fontSize: 13 }}>
+              <span style={{ flex: 1, minWidth: 0, fontWeight: 650 }}>{b.label}</span>
+              <span className="faint" style={{ fontSize: 12 }}>{b.n} fish{b.best ? ` · best ${b.best}"` : ''}</span>
             </div>
           ))}
         </div>
