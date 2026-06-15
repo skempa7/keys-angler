@@ -16,6 +16,7 @@ export const NAV_GROUPS = [
       { to: '/calendar', label: 'Calendar', Icon: IcClock },
       { to: '/map', label: 'Map & Spots', Icon: IcMap },
       { to: '/offshore', label: 'Offshore Plan', Icon: IcSun },
+      { to: '/crossings', label: 'Bar Crossings', Icon: IcShield },
       { to: '/compass', label: 'Compass', Icon: IcPin },
     ],
   },
