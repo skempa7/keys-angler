@@ -4,13 +4,15 @@ import { db } from '../db/db.js'
 import { ZONES, ZONE_BY_ID } from '../config.js'
 import { ALL_MARINE_ZONES, nearestStation } from '../data/stations.js'
 import { useActiveLocation } from '../hooks/useActiveLocation.js'
+import { useConditions } from '../hooks/useConditions.js'
 import { planTrip } from '../services/tripPlan.js'
-import { fmtTime, fmtRange, fmtDateShort, toneColor, strengthColor, compass, sstColor } from '../utils/format.js'
+import { getReg } from '../data/regs.js'
+import { fmtTime, fmtRange, fmtDateShort, fmtDayShort, toneColor, strengthColor, compass, sstColor } from '../utils/format.js'
 import { IcX } from '../components/icons.jsx'
 import WindArrow from '../components/WindArrow.jsx'
 import FactorList from '../components/FactorList.jsx'
 import TripFishMap from '../components/TripFishMap.jsx'
-import { baitList, zoneTargets } from '../engine/tripTargets.js'
+import { baitList, zoneTargets, depthLabel, shortTide } from '../engine/tripTargets.js'
 import { downloadICS, tripCalendarEvent } from '../services/phase2.js'
 import { graduateTrip } from '../services/tripLog.js'
 
@@ -18,6 +20,35 @@ const pad = (n) => String(n).padStart(2, '0')
 const startOfToday = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d }
 const tomorrowStr = () => { const d = new Date(); d.setDate(d.getDate() + 1); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` }
 const parseDate = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d) }
+const ymdLocal = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+const hhmm = (d) => `${pad(d.getHours())}:${pad(d.getMinutes())}`
+
+// A tap-to-load strip ranking the next week so you fish your best free day.
+function BestDays({ onPick }) {
+  const { data, loading } = useConditions({ days: 7 })
+  const out = data?.outlook
+  if (loading || !out?.length) return null
+  const best = out.reduce((a, b) => (b.score > a.score ? b : a), out[0])
+  return (
+    <div className="card stack-sm">
+      <div className="eyebrow">Best days this week</div>
+      <div className="outlook">
+        {out.map((d, i) => {
+          const win = d.windows?.[0]
+          return (
+            <button key={i} className={`day-card ${d === best ? 'day-best' : ''}`} onClick={() => onPick(ymdLocal(d.date), win ? hhmm(new Date(win.center)) : '06:30')}>
+              <div className="day-name">{i === 0 ? 'Today' : fmtDayShort(d.date)}</div>
+              <div className="day-score" style={{ color: toneColor(d.verdict.tone) }}>{d.score}</div>
+              <div className="day-verdict faint">{d === best ? 'Best bet' : ''}</div>
+              {win && <div className="day-window">{fmtTime(new Date(win.center))}</div>}
+            </button>
+          )
+        })}
+      </div>
+      <div className="faint" style={{ fontSize: 11 }}>Tap a day to load it into the planner.</div>
+    </div>
+  )
+}
 
 export default function TripPlanner() {
   const loc = useActiveLocation()
@@ -60,6 +91,8 @@ export default function TripPlanner() {
       </header>
 
       {msg && <div className="alert-banner info">{msg}</div>}
+
+      <BestDays onPick={(dateStr, departTime) => setForm((s) => ({ ...s, dateStr, departTime }))} />
 
       <div className="card stack-sm">
         <div className="row" style={{ gap: 8 }}>
@@ -123,7 +156,19 @@ function Briefing({ current, loc, onBack, note }) {
   const top = (p.windows || []).slice(0, 3)
   const buffer = { backcountry: 20, reef: 35, offshore: 60 }[p.zoneId] || 30
   const leaveBy = p.windows?.[0] ? new Date(p.windows[0].start).getTime() - buffer * 60000 : null
-  const bait = baitList(zoneTargets(p.zoneId, p.conditions?.sstF, p.biting))
+  const targetsDeep = zoneTargets(p.zoneId, p.conditions?.sstF, p.biting) // shallow → deep
+  const bait = baitList(targetsDeep)
+  // Top windows by score, then ordered through the day; earliest → shallowest target.
+  const runWindows = [...(p.windows || [])].slice(0, 4).sort((a, b) => a.start - b.start)
+  const runSteps = runWindows.map((w, i) => ({ w, t: targetsDeep[Math.min(i, targetsDeep.length - 1)] })).filter((s) => s.t)
+  const cc = p.conditions || {}
+  const pack = []
+  if (cc.uv != null && cc.uv >= 7) pack.push('Sun hoodie, zinc & polarized')
+  if (cc.precipProb != null && cc.precipProb >= 40) pack.push('Foul-weather top + dry bag')
+  if ((cc.gustKn != null && cc.gustKn >= 18) || (cc.waveFt != null && cc.waveFt >= 3)) pack.push('Lash it down · Bonine')
+  if (cc.airF != null && cc.airF <= 68) pack.push('A layer for the run out')
+  pack.push('Ice · water · chum')
+  const permits = [...new Set(targetsDeep.map((t) => getReg(t.sp.regsKey)?.permit).filter(Boolean))]
 
   const share = async () => {
     const text = buildFloatPlan(p, meta, loc)
@@ -181,6 +226,22 @@ function Briefing({ current, loc, onBack, note }) {
 
       <TripFishMap zoneId={p.zoneId} sstF={p.conditions?.sstF} biting={p.biting} />
 
+      {runSteps.length > 0 && (
+        <div className="card stack-sm">
+          <div className="eyebrow">Run sheet · work the day shallow → deep</div>
+          {runSteps.map((s, i) => (
+            <div key={i} className="row" style={{ gap: 10, alignItems: 'baseline' }}>
+              <span className="faint" style={{ fontWeight: 700 }}>{i + 1}.</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 650 }}>{fmtTime(s.w.start)} · {s.t.sp.name.split(/[ (]/)[0]}</div>
+                <div className="faint" style={{ fontSize: 12 }}>{depthLabel(s.t.sp)} · {shortTide(s.t.sp)}</div>
+              </div>
+              <span className="tag" style={{ background: 'var(--surface-2)', color: strengthColor(s.w.strength) }}>{s.w.strength}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {bait.length > 0 && (
         <div className="card stack-sm">
           <div className="eyebrow">Bait stop · buy it the night before</div>
@@ -193,6 +254,12 @@ function Briefing({ current, loc, onBack, note }) {
           <p className="faint" style={{ fontSize: 11 }}>Shared across your targets — the top of the list covers the most fish.</p>
         </div>
       )}
+
+      <div className="card stack-sm">
+        <div className="eyebrow">Before you go</div>
+        <div className="row wrap" style={{ gap: 8 }}>{pack.map((x) => <span key={x} className="chip">{x}</span>)}</div>
+        {permits.length > 0 && <p className="faint" style={{ fontSize: 12 }}>⚠ Permit needed: {permits.join(' · ')}</p>}
+      </div>
 
       <div className="card stack-sm">
         <div className="eyebrow">Export & safety</div>
