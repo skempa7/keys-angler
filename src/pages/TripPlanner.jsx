@@ -8,11 +8,12 @@ import { useConditions } from '../hooks/useConditions.js'
 import { planTrip } from '../services/tripPlan.js'
 import { getReg } from '../data/regs.js'
 import { fmtTime, fmtRange, fmtDateShort, fmtDayShort, toneColor, strengthColor, compass, sstColor } from '../utils/format.js'
-import { IcX } from '../components/icons.jsx'
+import { IcX, IcCheck } from '../components/icons.jsx'
 import WindArrow from '../components/WindArrow.jsx'
 import FactorList from '../components/FactorList.jsx'
 import TripFishMap from '../components/TripFishMap.jsx'
 import { baitList, zoneTargets, depthLabel, shortTide } from '../engine/tripTargets.js'
+import { mergeLoadouts } from '../engine/loadout.js'
 import { downloadICS, tripCalendarEvent } from '../services/phase2.js'
 import { graduateTrip } from '../services/tripLog.js'
 
@@ -52,7 +53,8 @@ function BestDays({ onPick }) {
 
 export default function TripPlanner() {
   const loc = useActiveLocation()
-  const trips = useLiveQuery(() => db.trips.orderBy('date').toArray(), [], [])
+  // Fetch ALL then JS-filter/sort — orderBy('date') would drop template rows (no date index).
+  const trips = useLiveQuery(() => db.trips.toArray(), [], [])
   const [form, setForm] = useState({ dateStr: tomorrowStr(), zoneId: 'reef', departTime: '06:30', returnTime: '', party: '', notes: '' })
   const [view, setView] = useState('home')
   const [current, setCurrent] = useState(null)
@@ -79,6 +81,15 @@ export default function TripPlanner() {
   const del = (e, id) => { e.stopPropagation(); db.trips.delete(id) }
   const copyToForm = (t) => { setForm({ dateStr: t.dateStr || form.dateStr, departTime: (t.departISO || '').slice(11, 16) || '06:30', zoneId: t.zoneId, returnTime: t.returnTime || '', party: t.party || '', notes: t.notes || '' }); window.scrollTo({ top: 0, behavior: 'smooth' }); note('Loaded into the planner — adjust the date and rebuild.') }
   const renameTrip = (t) => { const n = window.prompt('Name this trip', t.name || ''); if (n != null) db.trips.update(t.id, { name: n.trim() }) }
+  const saveTemplate = async () => {
+    const dflt = `${ZONE_BY_ID[form.zoneId]?.short || 'Trip'} run`
+    const n = window.prompt('Name this template', dflt); if (n == null) return
+    await db.trips.add({ template: 1, status: 'template', name: n.trim() || dflt, zoneId: form.zoneId, departISO: `2000-01-01T${form.departTime || '06:30'}`, returnTime: form.returnTime, party: form.party, notes: form.notes, createdAt: Date.now() })
+    note('Template saved.')
+  }
+  // JS-filter (NOT .notEqual — Dexie drops undefined-indexed rows). Templates = inputs, not cached briefings.
+  const planned = (trips || []).filter((t) => t.template !== 1).sort((a, b) => (a.date || 0) - (b.date || 0))
+  const templates = (trips || []).filter((t) => t.template === 1).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
 
   if (view === 'brief' && current) {
     return <Briefing current={current} loc={loc} onBack={() => { setCurrent(null); setView('home') }} note={note} msg={msg} />
@@ -113,12 +124,32 @@ export default function TripPlanner() {
         </div>
         <label className="field"><span className="field-label">Notes</span><input className="input" value={form.notes} onChange={set('notes')} placeholder="Who's aboard, ramp, plan B…" /></label>
         <button className="btn primary block lg" onClick={build} disabled={busy}>{busy ? 'Building & caching…' : 'Build & cache plan'}</button>
+        <button className="btn ghost block" onClick={saveTemplate}>Save these settings as a template</button>
       </div>
+
+      {templates.length > 0 && (
+        <div className="card stack-sm">
+          <div className="eyebrow">Templates</div>
+          {templates.map((t) => (
+            <div key={t.id} className="catch-row">
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 650 }}>{t.name}</div>
+                <div className="faint" style={{ fontSize: 12 }}>{ZONE_BY_ID[t.zoneId]?.short || 'Trip'} · depart {(t.departISO || '').slice(11, 16) || '06:30'}</div>
+                <div className="row" style={{ gap: 6, marginTop: 6 }}>
+                  <button className="chip" onClick={() => copyToForm(t)}>Use</button>
+                  <button className="chip" onClick={() => renameTrip(t)}>Rename</button>
+                </div>
+              </div>
+              <button className="icon-btn" onClick={(e) => del(e, t.id)} aria-label="Delete template"><IcX width={18} height={18} /></button>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="card stack-sm">
         <div className="eyebrow">Saved trips</div>
-        {(!trips || trips.length === 0) && <p className="faint" style={{ fontSize: 13 }}>No trips yet. Build one above while on WiFi — it’ll be ready offline on the water.</p>}
-        {(trips || []).map((t) => (
+        {planned.length === 0 && <p className="faint" style={{ fontSize: 13 }}>No trips yet. Build one above while on WiFi — it’ll be ready offline on the water.</p>}
+        {planned.map((t) => (
           <div key={t.id} className="catch-row">
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 650, cursor: 'pointer' }} onClick={() => openTrip(t)}>{t.name || `${fmtDateShort(new Date(t.date))} · ${ZONE_BY_ID[t.zoneId]?.short}`}</div>
@@ -164,6 +195,8 @@ function Briefing({ current, loc, onBack, note }) {
   const leaveBy = p.windows?.[0] ? new Date(p.windows[0].start).getTime() - buffer * 60000 : null
   const targetsDeep = zoneTargets(p.zoneId, p.conditions?.sstF, p.biting) // shallow → deep
   const bait = baitList(targetsDeep)
+  const gear = useLiveQuery(() => db.gear.toArray(), [], [])
+  const loadout = mergeLoadouts(targetsDeep.map((t) => t.sp), gear)
   // Top windows by score, then ordered through the day; earliest → shallowest target.
   const runWindows = [...(p.windows || [])].slice(0, 4).sort((a, b) => a.start - b.start)
   const runSteps = runWindows.map((w, i) => ({ w, t: targetsDeep[Math.min(i, targetsDeep.length - 1)] })).filter((s) => s.t)
@@ -260,6 +293,27 @@ function Briefing({ current, loc, onBack, note }) {
             </div>
           ))}
           <p className="faint" style={{ fontSize: 11 }}>Shared across your targets — the top of the list covers the most fish.</p>
+        </div>
+      )}
+
+      {loadout.slots.length > 0 && (
+        <div className="card stack-sm">
+          <div className="eyebrow">Tackle load-out · pull it the night before</div>
+          {loadout.gearEmpty ? (
+            <p className="faint" style={{ fontSize: 13 }}>Set up your gear locker to see what you already own for this trip.</p>
+          ) : (
+            <>
+              <div className="h2" style={{ fontSize: 16 }}>You own {loadout.ownedCount} of {loadout.neededCount} categories</div>
+              <div className="row wrap" style={{ gap: 8 }}>
+                {loadout.slots.map((s) => (
+                  <span key={s.key} className={`chip ${s.owned ? 'sel' : ''}`} style={s.owned ? undefined : { color: 'var(--text-dim)' }}>
+                    {s.owned ? <IcCheck width={12} height={12} style={{ verticalAlign: '-1px', marginRight: 3 }} /> : null}{s.label}
+                  </span>
+                ))}
+              </div>
+              <p className="faint" style={{ fontSize: 11 }}>Filled = in your locker. Open chips are what to grab before you go.</p>
+            </>
+          )}
         </div>
       )}
 

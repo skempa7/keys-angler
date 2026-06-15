@@ -50,4 +50,11 @@ db.version(3).stores({
   logFolders: '++id, name, kind, sort, createdAt',
 })
 
+// v4: reusable trip templates live in the existing `trips` table behind an indexable
+// INTEGER flag `template` (0|1) — same flag pattern as logTrips.favorite. Legacy rows
+// lack the field (reads as undefined = falsy). Declare ONLY the changed store.
+db.version(4).stores({
+  trips: '++id, date, zone, status, template',
+})
+
 export default db

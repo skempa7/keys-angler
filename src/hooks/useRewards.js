@@ -8,7 +8,8 @@ const today = () => { const d = new Date(); return `${d.getFullYear()}-${d.getMo
 export function useRewards() {
   const catches = useLiveQuery(() => db.catches.toArray(), [], [])
   const spots = useLiveQuery(() => db.spots.toArray(), [], [])
-  const trips = useLiveQuery(() => db.trips.toArray(), [], [])
+  // Exclude reusable templates — only real planned/cached trips count toward XP & badges.
+  const trips = useLiveQuery(() => db.trips.filter((t) => t.template !== 1).toArray(), [], [])
   const openDays = useLiveQuery(async () => (await db.settings.get('openDays'))?.value, [], undefined)
 
   // Record today's visit once (small +XP for daily use).
