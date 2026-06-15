@@ -8,6 +8,9 @@ import { planTrip } from '../services/tripPlan.js'
 import { fmtTime, fmtRange, fmtDateShort, toneColor, strengthColor, compass, sstColor } from '../utils/format.js'
 import { IcX } from '../components/icons.jsx'
 import WindArrow from '../components/WindArrow.jsx'
+import FactorList from '../components/FactorList.jsx'
+import TripFishMap from '../components/TripFishMap.jsx'
+import { baitList, zoneTargets } from '../engine/tripTargets.js'
 import { downloadICS, tripCalendarEvent } from '../services/phase2.js'
 import { graduateTrip } from '../services/tripLog.js'
 
@@ -118,6 +121,9 @@ function Briefing({ current, loc, onBack, note }) {
   const sunset = p.sunset ? new Date(p.sunset) : null
   const returnBy = meta.returnTime || (sunset ? fmtTime(sunset) : 'sunset')
   const top = (p.windows || []).slice(0, 3)
+  const buffer = { backcountry: 20, reef: 35, offshore: 60 }[p.zoneId] || 30
+  const leaveBy = p.windows?.[0] ? new Date(p.windows[0].start).getTime() - buffer * 60000 : null
+  const bait = baitList(zoneTargets(p.zoneId, p.conditions?.sstF, p.biting))
 
   const share = async () => {
     const text = buildFloatPlan(p, meta, loc)
@@ -144,6 +150,14 @@ function Briefing({ current, loc, onBack, note }) {
         <div key={i} className={`alert-banner ${s.level === 'danger' ? 'danger' : s.level === 'warn' ? 'warn' : 'info'}`}><strong>⚠ {s.text}</strong></div>
       ))}
 
+      {p.factors?.length > 0 && (
+        <div className="card stack-sm">
+          <div className="row between"><div className="h2">Why this score</div><span className="faint" style={{ fontSize: 12 }}>tap a factor</span></div>
+          <FactorList factors={p.factors} />
+          {leaveBy && <div className="faint" style={{ fontSize: 12 }}>Leave the dock by <b style={{ color: 'var(--text)' }}>{fmtTime(new Date(leaveBy))}</b> to be fishing when the {fmtTime(new Date(p.windows[0].start))} window opens.</div>}
+        </div>
+      )}
+
       <div className="card stack-sm">
         <div className="eyebrow">Best bite windows</div>
         {top.length === 0 && <p className="faint" style={{ fontSize: 13 }}>No windows — connect on WiFi to cache tides for this date.</p>}
@@ -165,17 +179,20 @@ function Briefing({ current, loc, onBack, note }) {
         <div className="card stat"><div className="eyebrow">Tides</div><div className="faint stat-foot" style={{ marginTop: 6 }}>{(p.tideEvents || []).map((e, i) => <div key={i}>{e.type === 'H' ? 'High' : 'Low'} {fmtTime(new Date(e.time))} ({e.level.toFixed(1)} ft)</div>)}{(p.tideEvents || []).length === 0 && '—'}</div></div>
       </div>
 
-      <div className="card stack-sm">
-        <div className="eyebrow">What's biting · {p.zoneName}</div>
-        <div className="row wrap" style={{ gap: 8 }}>
-          {(p.biting || []).map((b) => (
-            <span key={b.id} className="chip" style={{ color: b.cr ? 'var(--accent)' : b.keepable ? 'var(--good)' : 'var(--caution)' }}>
-              {b.name} · {b.status}
-            </span>
+      <TripFishMap zoneId={p.zoneId} sstF={p.conditions?.sstF} biting={p.biting} />
+
+      {bait.length > 0 && (
+        <div className="card stack-sm">
+          <div className="eyebrow">Bait stop · buy it the night before</div>
+          {bait.slice(0, 8).map((b) => (
+            <div key={b.label} className="row between" style={{ fontSize: 13 }}>
+              <span>{b.label}</span>
+              <span className="faint" style={{ fontSize: 11 }}>{b.count > 1 ? `${b.count} targets` : b.species[0]}</span>
+            </div>
           ))}
+          <p className="faint" style={{ fontSize: 11 }}>Shared across your targets — the top of the list covers the most fish.</p>
         </div>
-        {p.rig && <p className="muted" style={{ fontSize: 14, marginTop: 6 }}><strong>Rig:</strong> {p.rig}</p>}
-      </div>
+      )}
 
       <div className="card stack-sm">
         <div className="eyebrow">Export & safety</div>
