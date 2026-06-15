@@ -72,7 +72,8 @@ export default function Settings() {
         <div className="eyebrow">Appearance</div>
         <div className="row" style={{ gap: 8 }}>
           <button className={`chip ${theme === 'sea' ? 'active' : ''}`} onClick={() => setTheme('sea')}>Sea (dark)</button>
-          <button className={`chip ${theme === 'sun' ? 'active' : ''}`} onClick={() => setTheme('sun')}>Sunlight (high-contrast)</button>
+          <button className={`chip ${theme === 'sun' ? 'active' : ''}`} onClick={() => setTheme('sun')}>Sunlight</button>
+          <button className={`chip ${theme === 'auto' ? 'active' : ''}`} onClick={() => setTheme('auto')}>Auto (by daylight)</button>
         </div>
       </div>
 

@@ -28,9 +28,9 @@ function phaseNow(sun, now) {
 }
 
 export default function SkyBackground() {
-  const { theme } = useTheme()
+  const { applied } = useTheme()
   useEffect(() => {
-    if (theme !== 'sea') { document.documentElement.style.removeProperty('--bg-grad'); return undefined }
+    if (applied !== 'sea') { document.documentElement.style.removeProperty('--bg-grad'); return undefined }
     const apply = () => {
       const sun = solunarDay(new Date(), HOME_PORT.lat, HOME_PORT.lon).sun
       document.documentElement.style.setProperty('--bg-grad', PHASES[phaseNow(sun, new Date())])
@@ -38,7 +38,7 @@ export default function SkyBackground() {
     apply()
     const id = setInterval(apply, 5 * 60000)
     return () => clearInterval(id)
-  }, [theme])
+  }, [applied])
   return null
 }
 

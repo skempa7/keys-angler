@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db.js'
-import { getSpecies, speciesByZone } from '../data/species.js'
+import { SPECIES, getSpecies, speciesByZone } from '../data/species.js'
 import { ZONES, ZONE_BY_ID } from '../config.js'
 import { getReg, isOpenOn, verifyUrl } from '../data/regs.js'
 import { useConditions } from '../hooks/useConditions.js'
@@ -16,6 +16,21 @@ export default function Species() {
   const gear = useLiveQuery(() => db.gear.toArray(), [], [])
   const [selId, setSelId] = useState(null)
   const species = selId ? getSpecies(selId) : null
+  const sst = data?.nowConditions?.sstF
+
+  // "Hot right now" — in-season targets ranked by how well today's water fits them.
+  const hot = useMemo(() => {
+    return SPECIES.map((s) => {
+      const reg = getReg(s.regsKey)
+      const cr = reg?.season?.kind === 'catch-release'
+      const open = cr ? true : reg ? isOpenOn(reg) : true
+      const inBand = sst != null && sst >= s.waterTempMinF && sst <= s.waterTempMaxF
+      const near = sst != null && !inBand && Math.min(Math.abs(sst - s.waterTempMinF), Math.abs(sst - s.waterTempMaxF)) <= 3
+      const score = (open ? 3 : 0) + (inBand ? 3 : near ? 1 : 0) + (cr ? 0 : 1)
+      const reason = inBand && sst != null ? `${Math.round(sst)}°F — in its zone` : open ? (cr ? 'biting (C&R)' : 'in season') : 'off-season'
+      return { s, open, inBand, score, reason }
+    }).filter((x) => x.open).sort((a, b) => b.score - a.score).slice(0, 4)
+  }, [sst])
 
   if (species) return <Detail s={species} data={data} gear={gear} onBack={() => setSelId(null)} />
 
@@ -27,6 +42,23 @@ export default function Species() {
         <p className="muted">Tuned to today’s water and your gear.</p>
       </header>
       <ZoneScene />
+      {hot.length > 0 && (
+        <div className="card stack-sm">
+          <div className="eyebrow">🔥 Hot right now{sst != null ? ` · ${Math.round(sst)}°F water` : ''}</div>
+          <div className="tile-grid">
+            {hot.map(({ s, inBand, reason }) => (
+              <button key={s.id} className="tile" onClick={() => setSelId(s.id)}>
+                <span className="tile-ico"><SpeciesArt id={s.id} width={34} height={20} /></span>
+                <span className="tile-body">
+                  <span className="tile-label">{s.name}</span>
+                  <span className="tile-sub" style={inBand ? { color: 'var(--good)' } : undefined}>{reason}</span>
+                </span>
+                <IcChevron className="tile-caret" width={18} height={18} />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {ZONES.map((z) => (
         <div key={z.id} className="card stack-sm">
           <div className="eyebrow">{z.name}</div>
