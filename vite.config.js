@@ -46,6 +46,11 @@ export default defineConfig(({ command }) => {
             { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
             { src: 'icons/icon-512-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
           ],
+          shortcuts: [
+            { name: 'On-water mode', short_name: 'On-water', url: '/keys-angler/onwater' },
+            { name: 'Log a catch', short_name: 'Log', url: '/keys-angler/log' },
+            { name: 'Should I go?', short_name: 'Should I go', url: '/keys-angler/' },
+          ],
         },
         workbox: {
           globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2,json}'],

@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { HOME_PORT, APP } from '../config.js'
+import { exportAll, importAll, storageInfo, requestPersist } from '../services/backup.js'
 import { useTheme } from '../hooks/useTheme.js'
 import { useActiveLocation, setActiveLocation, resetActiveLocation } from '../hooks/useActiveLocation.js'
 import { evictSource } from '../services/cache.js'
@@ -24,6 +25,12 @@ export default function Settings() {
   }
   const disableAlerts = () => { setNotifyEnabled(false); setNotif((s) => ({ ...s, enabled: false })); note('Alerts off.') }
   const testAlert = async () => { const ok = await sendTest(); note(ok ? 'Test alert sent.' : 'Could not send a test.') }
+
+  const [storage, setStorage] = useState(null)
+  useEffect(() => { storageInfo().then(setStorage).catch(() => {}) }, [])
+  const doExport = async () => { const r = await exportAll(); if (r.ok) note(`Backed up ${r.total} records.`); else if (!r.aborted) note('Backup failed.') }
+  const doImport = async (e) => { const file = e.target.files?.[0]; if (!file) return; try { const r = await importAll(file); note(`Restored ${r.restored} records.`) } catch (err) { note(err.message || 'Could not read that file.') } e.target.value = '' }
+  const doPersist = async () => { const ok = await requestPersist(); setStorage(await storageInfo()); note(ok ? 'Storage protected on this device.' : 'Browser kept best-effort storage.') }
 
   const saveLoc = async () => {
     await setActiveLocation({ name: form.name, lat: Number(form.lat), lon: Number(form.lon), radiusNm: Number(form.radiusNm), label: form.name })
@@ -75,6 +82,21 @@ export default function Settings() {
         <div className="divider" />
         <button className="btn ghost block" onClick={refreshData}>Clear cached conditions (force refresh)</button>
         <button className="btn ghost block" onClick={clearPersonal} style={{ color: 'var(--bad)' }}>Delete my catches, spots & gear</button>
+      </div>
+
+      <div className="card stack-sm">
+        <div className="eyebrow">Backup & storage</div>
+        <button className="btn primary block" onClick={doExport}>Back up my logbook to a file</button>
+        <label className="btn ghost block" style={{ cursor: 'pointer' }}>Restore from a backup
+          <input type="file" accept=".json,application/json" onChange={doImport} style={{ display: 'none' }} />
+        </label>
+        {storage && (
+          <div className="faint" style={{ fontSize: 12 }}>
+            {storage.usageMB} MB stored{storage.quotaMB ? ` of ~${storage.quotaMB >= 1024 ? `${(storage.quotaMB / 1024).toFixed(1)} GB` : `${storage.quotaMB} MB`}` : ''} · {storage.persisted ? 'protected ✓' : 'best-effort (can be auto-cleared)'}
+          </div>
+        )}
+        {storage && !storage.persisted && <button className="btn ghost block" onClick={doPersist}>Protect my data from auto-cleanup</button>}
+        <p className="faint" style={{ fontSize: 12 }}>Your whole log in one file — keep a copy in iCloud/Drive. Restoring merges it back, on any device.</p>
       </div>
 
       <div className="card stack-sm">
