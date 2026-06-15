@@ -1,6 +1,7 @@
 import {
   IcHome, IcCalendar, IcMoon, IcFish, IcBook, IcHook, IcTrophy, IcStar,
   IcCrab, IcLobster, IcShrimp, IcAnchor, IcShield, IcCog, IcMap, IcClock, IcWaves,
+  IcSun, IcFlame, IcGrid, IcGear,
 } from '../components/icons.jsx'
 
 // Full grouped navigation (desktop sidebar + mobile "More" drawer).
@@ -14,6 +15,7 @@ export const NAV_GROUPS = [
       { to: '/plan', label: 'Trip Plan', Icon: IcCalendar },
       { to: '/calendar', label: 'Calendar', Icon: IcClock },
       { to: '/map', label: 'Map & Spots', Icon: IcMap },
+      { to: '/offshore', label: 'Offshore Plan', Icon: IcSun },
     ],
   },
   {
@@ -24,6 +26,8 @@ export const NAV_GROUPS = [
       { to: '/trips', label: 'Trip Log', Icon: IcBook },
       { to: '/slam', label: 'Grand Slam', Icon: IcTrophy },
       { to: '/logbook', label: 'Logbook', Icon: IcStar },
+      { to: '/recap', label: 'Season Recap', Icon: IcFlame },
+      { to: '/patterns', label: 'Patterns', Icon: IcGrid },
     ],
   },
   {
@@ -38,6 +42,7 @@ export const NAV_GROUPS = [
     title: 'Yours',
     items: [
       { to: '/gear', label: 'Gear & Boat', Icon: IcAnchor },
+      { to: '/knots', label: 'Knots & Rigs', Icon: IcGear },
       { to: '/regs', label: 'Regulations', Icon: IcShield },
       { to: '/settings', label: 'Settings', Icon: IcCog },
     ],
