@@ -26,6 +26,7 @@ import Tournament from './pages/Tournament.jsx'
 import Compass from './pages/Compass.jsx'
 import Crossings from './pages/Crossings.jsx'
 import CleaningTable from './pages/CleaningTable.jsx'
+import DriftAnchor from './pages/DriftAnchor.jsx'
 import OnWater from './pages/OnWater.jsx'
 
 // Code-split the map page so Leaflet stays out of the initial bundle.
@@ -57,6 +58,7 @@ export default function App() {
           <Route path="compass" element={<Compass />} />
           <Route path="crossings" element={<Crossings />} />
           <Route path="cleaning" element={<CleaningTable />} />
+          <Route path="drift" element={<DriftAnchor />} />
           <Route path="crab" element={<StoneCrab />} />
           <Route path="lobster" element={<Lobster />} />
           <Route path="shrimp" element={<Shrimp />} />

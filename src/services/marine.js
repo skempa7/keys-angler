@@ -8,6 +8,7 @@ const TZ = encodeURIComponent('America/New_York')
 const MARINE_VARS = [
   'wave_height', 'wave_period', 'wave_direction',
   'swell_wave_height', 'swell_wave_period', 'sea_surface_temperature',
+  'ocean_current_velocity', 'ocean_current_direction',
 ]
 const WX_VARS = [
   'wind_speed_10m', 'wind_gusts_10m', 'wind_direction_10m',

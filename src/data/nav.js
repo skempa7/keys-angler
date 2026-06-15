@@ -1,7 +1,7 @@
 import {
   IcHome, IcCalendar, IcMoon, IcFish, IcBook, IcHook, IcTrophy, IcStar,
   IcCrab, IcLobster, IcShrimp, IcAnchor, IcShield, IcCog, IcMap, IcClock, IcWaves,
-  IcSun, IcFlame, IcGrid, IcGear, IcMedal, IcPin, IcKnife,
+  IcSun, IcFlame, IcGrid, IcGear, IcMedal, IcPin, IcKnife, IcDrift,
 } from '../components/icons.jsx'
 
 // Full grouped navigation (desktop sidebar + mobile "More" drawer).
@@ -11,6 +11,7 @@ export const NAV_GROUPS = [
     items: [
       { to: '/', label: 'Should I Go', Icon: IcHome, end: true },
       { to: '/onwater', label: 'On-Water Mode', Icon: IcWaves },
+      { to: '/drift', label: 'Drift or Anchor', Icon: IcDrift },
       { to: '/bite', label: 'Bite Times', Icon: IcMoon },
       { to: '/plan', label: 'Trip Plan', Icon: IcCalendar },
       { to: '/calendar', label: 'Calendar', Icon: IcClock },

@@ -52,6 +52,8 @@ export function sampleConditions(marineJson, wxJson, when) {
     windKn: num(w.wind_speed_10m),
     gustKn: num(w.wind_gusts_10m),
     windDir: num(w.wind_direction_10m),
+    currentKn: m.ocean_current_velocity == null ? null : Math.round(num(m.ocean_current_velocity) * 0.539957 * 100) / 100, // km/h → kn
+    currentDir: num(m.ocean_current_direction), // degrees the current sets TOWARD
     airF: num(w.temperature_2m),
     feelsF: num(w.apparent_temperature),
     humidity: num(w.relative_humidity_2m),
