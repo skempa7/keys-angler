@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db.js'
 import { insights } from '../engine/insights.js'
-import { IcGrid, IcFlame } from '../components/icons.jsx'
+import { windowVerdict } from '../engine/windowVerdict.js'
+import { IcGrid, IcFlame, IcClock } from '../components/icons.jsx'
 
 const STRENGTH_COLOR = { Strong: 'var(--good)', 'Worth noting': 'var(--caution)', 'Early signal': 'var(--text-faint)' }
 
@@ -32,6 +33,7 @@ export default function Patterns() {
   }, [catches, species])
 
   const edges = useMemo(() => insights((catches || []).filter((c) => species === 'All' || c.species === species)), [catches, species])
+  const verdict = useMemo(() => windowVerdict((catches || []).filter((c) => species === 'All' || c.species === species)), [catches, species])
 
   return (
     <div className="stack">
@@ -45,6 +47,20 @@ export default function Patterns() {
         <button className={`chip ${species === 'All' ? 'active' : ''}`} onClick={() => setSpecies('All')}>All species</button>
         {speciesList.map((s) => <button key={s} className={`chip ${species === s ? 'active' : ''}`} onClick={() => setSpecies(s)}>{s}</button>)}
       </div>
+
+      {verdict && (
+        <div className="card stack-sm">
+          <div className="eyebrow"><IcClock width={13} height={13} style={{ verticalAlign: '-1px', marginRight: 5 }} />Did the window pay off?</div>
+          <div className="row between" style={{ gap: 10, alignItems: 'baseline' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 650, fontSize: 14 }}>You boated {verdict.hits} of your last {verdict.window} fish inside a called window</div>
+              <div className="faint" style={{ fontSize: 12 }}>{verdict.pct}% hit-rate · in a {verdict.basis}{verdict.allN > verdict.window ? ` · ${verdict.allHits}/${verdict.allN} all-time` : ''}</div>
+            </div>
+            <span className="tag" style={{ background: 'var(--surface-2)', color: STRENGTH_COLOR[verdict.strength] }}>{verdict.strength}</span>
+          </div>
+          <div className="faint" style={{ fontSize: 11 }}>Descriptive — effort outside windows isn't tracked. The more you log, the truer it gets.</div>
+        </div>
+      )}
 
       {edges.length > 0 && (
         <div className="card stack-sm">

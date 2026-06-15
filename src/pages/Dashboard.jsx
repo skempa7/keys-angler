@@ -5,6 +5,7 @@ import { useConditions } from '../hooks/useConditions.js'
 import { db } from '../db/db.js'
 import { edgeNow } from '../engine/personalEdge.js'
 import { oneAnswer, answerCountdown, sinceLastLook } from '../engine/headline.js'
+import { momentChip } from '../engine/momentChip.js'
 import { armAlerts } from '../services/notify.js'
 import ScoreRing from '../components/ScoreRing.jsx'
 import FactorList from '../components/FactorList.jsx'
@@ -18,7 +19,9 @@ import { useActiveLocation } from '../hooks/useActiveLocation.js'
 import { fmtTime, fmtRange, fmtDayShort, relTime, compass, toneColor, weatherLabel, dayLabel, sstColor } from '../utils/format.js'
 import WindArrow from '../components/WindArrow.jsx'
 import WeatherCard from '../components/WeatherCard.jsx'
-import { IcStorm, IcWaves, IcPin } from '../components/icons.jsx'
+import { IcStorm, IcWaves, IcPin, IcMoon, IcSun } from '../components/icons.jsx'
+
+const MOMENT_ICONS = { IcWaves, IcMoon, IcSun }
 
 export default function Dashboard() {
   const { data, loading, error, refreshing, online, refresh } = useConditions({ days: 5 })
@@ -51,6 +54,7 @@ export default function Dashboard() {
   const edge = edgeNow(catches || [], tideNow)
   const ans = oneAnswer(data, new Date(tick))
   const countdown = answerCountdown(ans, new Date(tick))
+  const moment = momentChip(data, new Date(tick), ans)
   const tone = nowScore.verdict.tone
   const best = today.windows[0]
   const fetchedAts = Object.values(sources).map((s) => s.fetchedAt).filter(Boolean)
@@ -82,6 +86,14 @@ export default function Dashboard() {
           {ans.target && countdown ? <span className="answer-count"> · {countdown}</span> : null}
           {ans.caveat ? <span className="answer-caveat"> · {ans.caveat}</span> : null}
         </p>
+        {moment && (() => {
+          const MIcon = MOMENT_ICONS[moment.icon] || IcWaves
+          return (
+            <div className={`moment-chip tone-${moment.tone}`} role="status" aria-live="polite">
+              <MIcon width={14} height={14} /><b>{moment.label}</b><span className="mc-sub"> · {moment.sub}</span>
+            </div>
+          )
+        })()}
         {delta && (
           <p className="answer-delta">Since your last look ({relTime(delta.at)}): {delta.phrases.join(' · ')}</p>
         )}

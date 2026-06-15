@@ -404,6 +404,15 @@ textarea.input { min-height: 80px; padding: var(--sp-3); resize: vertical; }
 .loc-chip:active { transform: scale(.97); }
 .loc-chip svg { color: var(--accent); }
 
+/* ---- Moment chip (dashboard right-now trigger) ------------------------- */
+.moment-chip { display: inline-flex; align-items: center; gap: 6px; margin-top: var(--sp-2); padding: 5px 12px; border-radius: var(--r-pill); background: var(--surface-2); border: 1px solid var(--border-soft); font-size: 12.5px; font-weight: 600; color: var(--text-dim); }
+.moment-chip b { color: var(--text); font-weight: 700; }
+.moment-chip .mc-sub { color: var(--text-faint); font-variant-numeric: tabular-nums; }
+.moment-chip svg { flex: none; }
+.moment-chip.tone-good { border-color: var(--good); background: var(--good-soft); } .moment-chip.tone-good b, .moment-chip.tone-good svg { color: var(--good); }
+.moment-chip.tone-caution { border-color: var(--caution); background: var(--caution-soft); } .moment-chip.tone-caution b, .moment-chip.tone-caution svg { color: var(--caution); }
+.moment-chip.tone-accent { border-color: var(--accent); background: var(--accent-soft); } .moment-chip.tone-accent b, .moment-chip.tone-accent svg { color: var(--accent); }
+
 /* ---- Empty states ------------------------------------------------------ */
 .empty-state { display: grid; justify-items: center; text-align: center; gap: 8px; padding: 28px 20px; }
 .empty-state-glyph { width: 60px; height: 60px; display: grid; place-items: center; border-radius: 50%; background: var(--accent-soft); color: var(--accent); margin-bottom: 2px; }
