@@ -14,14 +14,18 @@ const matchSpecies = (name, s) => {
 import { ZONES, ZONE_BY_ID } from '../config.js'
 import { getReg, isOpenOn, verifyUrl } from '../data/regs.js'
 import { useConditions } from '../hooks/useConditions.js'
-import { fmtRange, strengthColor } from '../utils/format.js'
-import { IcChevron } from '../components/icons.jsx'
+import { fmtRange, strengthColor, fmtTime, fmtDayShort, toneColor } from '../utils/format.js'
+import { IcChevron, IcCheck, IcCalendar } from '../components/icons.jsx'
 import { SpeciesArt } from '../components/FishArt.jsx'
 import ZoneScene from '../components/ZoneScene.jsx'
+import { bestDaysFor } from '../engine/recommender.js'
+import { buildBaitBoard } from '../engine/baitBoard.js'
+import { buildLoadout } from '../engine/loadout.js'
 
 export default function Species() {
-  const { data } = useConditions({ days: 1 })
+  const { data } = useConditions({ days: 5 })
   const gear = useLiveQuery(() => db.gear.toArray(), [], [])
+  const catches = useLiveQuery(() => db.catches.toArray(), [], [])
   const [params, setParams] = useSearchParams()
   const [selId, setSelId] = useState(() => params.get('s'))
   const species = selId ? getSpecies(selId) : null
@@ -42,7 +46,13 @@ export default function Species() {
     }).filter((x) => x.open).sort((a, b) => b.score - a.score).slice(0, 4)
   }, [sst])
 
-  if (species) return <Detail s={species} data={data} gear={gear} onBack={closeDetail} />
+  // Today's bait board — what to tie on for the fish biting now, ranked by water + your log.
+  const baitBoard = useMemo(
+    () => buildBaitBoard({ hotSpecies: hot.map((h) => h.s), conditions: data?.nowConditions, tideNow: data?.tideNow, catches }),
+    [hot, data, catches],
+  )
+
+  if (species) return <Detail key={species.id} s={species} data={data} gear={gear} onBack={closeDetail} />
 
   return (
     <div className="stack">
@@ -67,6 +77,20 @@ export default function Species() {
               </button>
             ))}
           </div>
+        </div>
+      )}
+      {baitBoard.length > 0 && (
+        <div className="card stack-sm">
+          <div className="eyebrow">Tie on now · bait board</div>
+          {baitBoard.map((b) => (
+            <div key={b.key} className="row between" style={{ alignItems: 'center', gap: 10 }}>
+              <span className={`chip ${b.top ? 'sel' : ''}`}>{b.label}</span>
+              {b.mine && b.mine.n >= 2
+                ? <span className="tag" style={{ background: 'var(--surface-2)', color: 'var(--good)', flex: 'none' }}>you · {b.mine.n}</span>
+                : <span className="faint" style={{ fontSize: 12, textAlign: 'right' }}>{b.reason}</span>}
+            </div>
+          ))}
+          <div className="faint" style={{ fontSize: 11 }}>From the fish biting today, ranked by water &amp; your log.</div>
         </div>
       )}
       {ZONES.map((z) => (
@@ -98,9 +122,11 @@ function Detail({ s, data, gear, onBack }) {
   const sst = data?.nowConditions?.sstF
   const fit = sst == null ? null : sst >= s.waterTempMinF && sst <= s.waterTempMaxF ? 'ideal' : sst < s.waterTempMinF ? 'cool' : 'warm'
   const windows = (data?.today?.windows || []).slice(0, 3)
-  const needsFly = /\bfly\b|\b\d{1,2}\s?wt\b/i.test(`${(s.lures || []).join(' ')} ${s.rig}`)
-  const ownsFly = (gear || []).some((g) => /fly|wt/i.test(`${g.name} ${g.category}`))
-  const gearFlag = needsFly && (gear || []).length > 0 && !ownsFly
+  const plan = useMemo(() => bestDaysFor(s, data?.outlook, sst), [s, data, sst])
+  const [selDay, setSelDay] = useState(null)
+  const dayShown = selDay || plan?.best
+  const loadout = useMemo(() => buildLoadout(s, gear), [s, gear])
+  const dn = (d) => (plan && d === plan.days[0] ? 'Today' : fmtDayShort(d.date))
   const allCatches = useLiveQuery(() => db.catches.toArray(), [], [])
   const mine = (allCatches || []).filter((c) => matchSpecies(c.species, s))
   const myPR = mine.reduce((m, c) => (c.lengthIn != null && c.lengthIn > (m?.lengthIn ?? -1) ? c : m), null)
@@ -139,6 +165,35 @@ function Detail({ s, data, gear, onBack }) {
         )}
       </div>
 
+      {plan && (
+        <div className="card stack-sm">
+          <div className="eyebrow"><IcCalendar width={13} height={13} style={{ verticalAlign: '-2px', marginRight: 5 }} />Best day to chase</div>
+          {plan.allClosed ? (
+            <div className="alert-banner info" style={{ fontSize: 13 }}>Closed for harvest right now — plan a release trip or wait for the season to open.</div>
+          ) : (
+            <>
+              <div className="outlook">
+                {plan.days.map((d, i) => (
+                  <button key={i} className={`day-card ${d === plan.best ? 'day-best' : ''}`} onClick={() => setSelDay(d)} style={d === dayShown ? { outline: '1.5px solid var(--accent)' } : undefined}>
+                    <div className="day-name">{i === 0 ? 'Today' : fmtDayShort(d.date)}</div>
+                    <div className="day-score" style={{ color: toneColor(d.tone) }}>{d.closed ? '—' : d.score}</div>
+                    <div className="day-verdict faint">{d === plan.best ? 'Best bet' : d.closed ? 'Closed' : d.label}</div>
+                    {d.win && <div className="day-window">{fmtTime(d.win.center)}</div>}
+                  </button>
+                ))}
+              </div>
+              {dayShown && (
+                <div className="faint" style={{ fontSize: 13, marginTop: 6 }}>
+                  <b style={{ color: toneColor(dayShown.tone) }}>{dn(dayShown)} · {dayShown.label}</b>
+                  {dayShown.why.length ? ` — ${dayShown.why.join(' · ')}` : ''}
+                  {dayShown.win ? ` · ${fmtRange(dayShown.win.start, dayShown.win.end)}` : ''}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
       {mine.length > 0 && (
         <div className="card stack-sm">
           <div className="eyebrow">Your record</div>
@@ -151,7 +206,23 @@ function Detail({ s, data, gear, onBack }) {
         <div className="eyebrow">Rig & leader</div>
         <p style={{ fontSize: 14 }}>{s.rig}</p>
         <p className="muted" style={{ fontSize: 13 }}><strong>Leader:</strong> {s.leader}</p>
-        {gearFlag && <div className="alert-banner warn" style={{ fontSize: 13 }}>This calls for fly gear — none found in your locker. Add it under Gear &amp; Boat.</div>}
+      </div>
+
+      <div className="card stack-sm">
+        <div className="eyebrow">Load-out · what to bring</div>
+        {loadout.gearEmpty ? (
+          <div className="faint" style={{ fontSize: 13 }}>Add your gear in the locker to see what you already own — <Link to="/gear">set up your locker →</Link></div>
+        ) : loadout.slots.map((sl) => (
+          <div key={sl.key} className="row between" style={{ alignItems: 'baseline', gap: 10 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontWeight: 650, fontSize: 14 }}>{sl.label}</div>
+              <div className="faint" style={{ fontSize: 12 }}>{sl.rec}</div>
+            </div>
+            {sl.owned
+              ? <span className="chip sel" style={{ flex: 'none' }}><IcCheck width={13} height={13} style={{ verticalAlign: '-2px' }} /> have it</span>
+              : <span className="chip" style={{ flex: 'none', color: 'var(--text-dim)' }}>not in locker</span>}
+          </div>
+        ))}
       </div>
 
       <div className="card stack-sm">

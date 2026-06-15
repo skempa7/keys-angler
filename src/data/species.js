@@ -20,3 +20,29 @@ export const SPECIES = [
 export const SPECIES_BY_ID = Object.fromEntries(SPECIES.map((s) => [s.id, s]))
 export const getSpecies = (id) => SPECIES_BY_ID[id]
 export const speciesByZone = (zone) => SPECIES.filter((s) => s.zone === zone)
+
+// Condition tags for the bait board — a normalized keyword → when it shines.
+// clarity: clean | stained | any · tide: moving | any · temp: warm | cool | any.
+// Authored conservatively (most 'any') — a wrong tag misleads an expert worse than none.
+export const BAIT_TAGS = {
+  pilchard: { clarity: 'any', tide: 'moving', temp: 'warm', note: 'match the hatch' },
+  threadfin: { clarity: 'any', tide: 'moving', temp: 'any', note: 'lively on top' },
+  greenie: { clarity: 'any', tide: 'moving', temp: 'warm', note: 'match the hatch' },
+  'goggle-eye': { clarity: 'any', tide: 'any', temp: 'any', note: 'the kite-bait king' },
+  ballyhoo: { clarity: 'clean', tide: 'any', temp: 'any', note: 'troll the blue' },
+  shrimp: { clarity: 'any', tide: 'moving', temp: 'cool', note: 'works year-round' },
+  crab: { clarity: 'any', tide: 'moving', temp: 'warm', note: 'permit & tarpon candy' },
+  pinfish: { clarity: 'any', tide: 'any', temp: 'any', note: 'tough live bait' },
+  mullet: { clarity: 'stained', tide: 'any', temp: 'cool', note: 'big bait, big fish' },
+  'cigar minnow': { clarity: 'any', tide: 'moving', temp: 'any', note: 'reef candy' },
+  'blue runner': { clarity: 'any', tide: 'any', temp: 'warm', note: 'hardy big-bait' },
+  hardtail: { clarity: 'any', tide: 'any', temp: 'warm', note: 'hardy big-bait' },
+  jig: { clarity: 'clean', tide: 'moving', temp: 'any', note: 'work the column' },
+  bucktail: { clarity: 'stained', tide: 'moving', temp: 'any', note: 'thump in dirty water' },
+  spoon: { clarity: 'clean', tide: 'moving', temp: 'any', note: 'flash on the flats' },
+  topwater: { clarity: 'clean', tide: 'moving', temp: 'warm', note: 'low-light blowups' },
+  fly: { clarity: 'clean', tide: 'any', temp: 'any', note: 'sight-cast clean water' },
+  'sea witch': { clarity: 'any', tide: 'any', temp: 'any', note: 'dress a ballyhoo' },
+  squid: { clarity: 'any', tide: 'any', temp: 'any', note: 'cut or whole' },
+  sardine: { clarity: 'any', tide: 'moving', temp: 'any', note: 'chum-slick match' },
+}
