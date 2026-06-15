@@ -8,6 +8,16 @@ const mode = (arr) => {
   return best ? { value: best, count: n } : null
 }
 
+// All-time personal best (longest) per species, with the date it was set.
+export function personalBests(catches) {
+  const by = {}
+  for (const c of catches || []) {
+    if (c.lengthIn == null || !c.species) continue
+    if (!by[c.species] || c.lengthIn > by[c.species].lengthIn) by[c.species] = { species: c.species, lengthIn: c.lengthIn, at: c.caughtAt }
+  }
+  return Object.values(by).sort((a, b) => b.lengthIn - a.lengthIn)
+}
+
 export function catchYears(catches) {
   return [...new Set((catches || []).map((c) => new Date(c.caughtAt).getFullYear()))].sort((a, b) => b - a)
 }

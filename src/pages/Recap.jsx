@@ -1,15 +1,16 @@
 import { useMemo, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db.js'
-import { computeRecap, catchYears } from '../engine/recap.js'
+import { computeRecap, catchYears, personalBests } from '../engine/recap.js'
 import { fmtDateShort } from '../utils/format.js'
-import { IcFlame, IcFish, IcTrophy, IcShare } from '../components/icons.jsx'
+import { IcFlame, IcFish, IcTrophy, IcShare, IcStar } from '../components/icons.jsx'
 
 export default function Recap() {
   const catches = useLiveQuery(() => db.catches.toArray(), [], [])
   const years = useMemo(() => catchYears(catches), [catches])
   const [year, setYear] = useState(null) // null = all time
   const recap = useMemo(() => computeRecap(catches, year), [catches, year])
+  const bests = useMemo(() => personalBests(catches), [catches])
 
   const share = async () => {
     if (!recap) return
@@ -83,6 +84,18 @@ export default function Recap() {
               </div>
             ))}
           </div>
+
+          {bests.length > 0 && (
+            <div className="card stack-sm">
+              <div className="eyebrow"><IcStar width={13} height={13} style={{ verticalAlign: '-1px', marginRight: 5, color: 'var(--gold)' }} />Personal bests · all-time</div>
+              {bests.slice(0, 8).map((b) => (
+                <div key={b.species} className="row between" style={{ fontSize: 14 }}>
+                  <span>{b.species}</span>
+                  <span><b style={{ color: 'var(--gold)' }}>{b.lengthIn}"</b> <span className="faint" style={{ fontSize: 12 }}>· {fmtDateShort(new Date(b.at))}</span></span>
+                </div>
+              ))}
+            </div>
+          )}
 
           <button className="btn ghost block" onClick={share}><IcShare width={18} height={18} /> Share my recap</button>
         </>

@@ -75,7 +75,7 @@ export default function Dashboard() {
           </div>
         </div>
         <h1 className="display" style={{ color: toneColor(tone) }}>{nowScore.verdict.label}</h1>
-        <p className="answer-line">
+        <p className="answer-line" role="status" aria-live="polite">
           <b style={{ color: toneColor(ans.tone) }}>{ans.verb}</b> — {ans.detail}
           {ans.target && countdown ? <span className="answer-count"> · {countdown}</span> : null}
           {ans.caveat ? <span className="answer-caveat"> · {ans.caveat}</span> : null}

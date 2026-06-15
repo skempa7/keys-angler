@@ -27,7 +27,7 @@ export default function QuickLogSheet() {
         species: list[0]?.species || 'Yellowtail Snapper', lengthIn: null, weightLb: null, caughtAt: Date.now(),
         zone: list[0]?.zone || 'reef', bait: '', spot: '', notes: '', createdAt: Date.now(),
       })
-      haptic(22); setId(newId); setOpen(true)
+      haptic.logged(); setId(newId); setOpen(true)
       clearTimeout(timer.current); timer.current = setTimeout(() => setOpen(false), 7000)
       // enrich from the cached conditions (no waiting on the tap)
       loadConditions({ lat: loc.lat, lon: loc.lon, station: nearestStation(loc.lat, loc.lon).id, zones: ALL_MARINE_ZONES, days: 1, when: new Date() })

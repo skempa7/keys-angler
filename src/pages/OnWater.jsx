@@ -84,7 +84,7 @@ export default function OnWater() {
       zone: 'reef', bait: '', spot: '', notes: '', scoreAtCatch: data?.nowScore?.score ?? null,
       createdAt: Date.now(), ...snap,
     })
-    haptic(22)
+    haptic.logged()
     setJustLogged(id)
     setTimeout(() => setJustLogged((cur) => (cur === id ? null : cur)), 8000)
     if (navigator.geolocation) {
