@@ -8,6 +8,7 @@ import Onboarding from './Onboarding.jsx'
 import QuickLogSheet from './QuickLogSheet.jsx'
 import SkyBackground from './SkyBackground.jsx'
 import CommandBar from './CommandBar.jsx'
+import LocationSheet from './LocationSheet.jsx'
 import { IcFish, IcSearch } from './icons.jsx'
 
 export default function Layout() {
@@ -31,6 +32,7 @@ export default function Layout() {
       </main>
       <BottomNav />
       <CommandBar />
+      <LocationSheet />
       <QuickLogSheet />
       <RewardsToast />
       <Onboarding />

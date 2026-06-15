@@ -14,13 +14,15 @@ import ReefBackdrop from '../components/ReefBackdrop.jsx'
 import HourlyScrubber from '../components/HourlyScrubber.jsx'
 import OfflineButton from '../components/OfflineButton.jsx'
 import { HOME_PORT } from '../config.js'
+import { useActiveLocation } from '../hooks/useActiveLocation.js'
 import { fmtTime, fmtRange, fmtDayShort, relTime, compass, toneColor, weatherLabel, dayLabel, sstColor } from '../utils/format.js'
 import WindArrow from '../components/WindArrow.jsx'
 import WeatherCard from '../components/WeatherCard.jsx'
-import { IcStorm, IcWaves } from '../components/icons.jsx'
+import { IcStorm, IcWaves, IcPin } from '../components/icons.jsx'
 
 export default function Dashboard() {
   const { data, loading, error, refreshing, online, refresh } = useConditions({ days: 5 })
+  const activeLoc = useActiveLocation()
   const catches = useLiveQuery(() => db.catches.toArray(), [], [])
   const [tick, setTick] = useState(() => Date.now())
   const [delta, setDelta] = useState(null)
@@ -84,7 +86,10 @@ export default function Dashboard() {
           <p className="answer-delta">Since your last look ({relTime(delta.at)}): {delta.phrases.join(' · ')}</p>
         )}
         <p className="muted small">
-          {HOME_PORT.label} · {stale ? 'cached' : 'updated'} {relTime(lastUpdated)}
+          <button className="loc-chip" onClick={() => window.dispatchEvent(new CustomEvent('ka-location'))} aria-label="Change fishing area">
+            <IcPin width={12} height={12} /> {activeLoc.label || activeLoc.name}
+          </button>
+          {' · '}{stale ? 'cached' : 'updated'} {relTime(lastUpdated)}
           {stale && <span className="v-poor"> · offline/stale</span>}
         </p>
       </header>

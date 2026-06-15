@@ -399,6 +399,11 @@ textarea.input { min-height: 80px; padding: var(--sp-3); resize: vertical; }
 .drift-stat strong { font-size: 15px; font-variant-numeric: tabular-nums; }
 .drift-rel { margin: 12px 0 0; font-size: 13.5px; color: var(--text-dim); }
 
+/* ---- Location chip ----------------------------------------------------- */
+.loc-chip { display: inline-flex; align-items: center; gap: 4px; padding: 1px 9px 2px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border-soft); color: var(--text-dim); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; vertical-align: -1px; }
+.loc-chip:active { transform: scale(.97); }
+.loc-chip svg { color: var(--accent); }
+
 /* ---- Module tiles ------------------------------------------------------ */
 .tile-grid { display: grid; grid-template-columns: 1fr; gap: var(--sp-2); }
 @media (min-width: 560px) { .tile-grid { grid-template-columns: 1fr 1fr; } }
