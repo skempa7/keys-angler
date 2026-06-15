@@ -46,5 +46,5 @@ export function bestDaysFor(species, outlook, sstF) {
   const allClosed = gated && days.every((d) => d.closed)
   const pool = days.filter((d) => !d.closed)
   const best = (pool.length ? pool : days).reduce((a, b) => (b.score > a.score ? b : a))
-  return { best, days, allClosed, fit, fitPhrase, dir }
+  return { best, days, allClosed }
 }

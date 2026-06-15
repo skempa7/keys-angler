@@ -60,25 +60,19 @@ export function buildCalibration(catches) {
   const n = pool.length
   const nEff = Math.min(n, new Set(pool.map((c) => localDay(c.caughtAt))).size)
 
-  // Sharpness (cond not required): share of score-stamped catches that read Good+ (60+).
-  // Honest framing: this says the model RANKS his productive moments well — NOT a hit-rate.
-  const scored = (catches || []).filter((c) => typeof c.scoreAtCatch === 'number')
-  const sharpnessPct = scored.length ? Math.round((100 * scored.filter((c) => c.scoreAtCatch >= 60).length) / scored.length) : null
-
   if (nEff < MIN_DAYS) {
-    return { gated: false, tier: 'Learning', n, nEff, need: MIN_DAYS, factorWeights: null, deltas: {}, sharpnessPct }
+    return { gated: false, tier: 'Learning', n, nEff, need: MIN_DAYS, factorWeights: null }
   }
 
   const k = nEff / (nEff + K0)
-  const factorWeights = {}, deltas = {}
+  const factorWeights = {}
   for (const key of Object.keys(SUBSCORE)) {
     const vals = pool.map((c) => SUBSCORE[key](c)).filter((v) => v != null)
-    if (vals.length < MIN_FACTOR) { factorWeights[key] = 1; deltas[key] = 0; continue }
+    if (vals.length < MIN_FACTOR) { factorWeights[key] = 1; continue }
     const mean = vals.reduce((s, v) => s + v, 0) / vals.length
     const lift = clamp(mean / BASELINE[key], 0.5, 2.0)
     const mult = clamp(1 + (lift - 1) * k, 0.6, 1.5)
     factorWeights[key] = Math.round(mult * 1000) / 1000
-    deltas[key] = Math.round((mult - 1) * 100)
   }
-  return { gated: true, tier: 'Tuned to your water', n, nEff, k: Math.round(k * 100) / 100, factorWeights, deltas, sharpnessPct }
+  return { gated: true, tier: 'Tuned to your water', n, nEff, k: Math.round(k * 100) / 100, factorWeights }
 }
