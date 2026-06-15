@@ -1,8 +1,16 @@
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db/db.js'
 import { SPECIES, getSpecies, speciesByZone } from '../data/species.js'
+import { fmtDateShort } from '../utils/format.js'
+
+// Match a free-text catch species to a KB species (exact, prefix, or first-word).
+const matchSpecies = (name, s) => {
+  const n = (name || '').toLowerCase().trim(); if (!n) return false
+  const kb = s.name.toLowerCase()
+  return n === kb || kb.startsWith(n) || n.startsWith(kb.split(/[ (]/)[0])
+}
 import { ZONES, ZONE_BY_ID } from '../config.js'
 import { getReg, isOpenOn, verifyUrl } from '../data/regs.js'
 import { useConditions } from '../hooks/useConditions.js'
@@ -14,9 +22,11 @@ import ZoneScene from '../components/ZoneScene.jsx'
 export default function Species() {
   const { data } = useConditions({ days: 1 })
   const gear = useLiveQuery(() => db.gear.toArray(), [], [])
-  const [selId, setSelId] = useState(null)
+  const [params, setParams] = useSearchParams()
+  const [selId, setSelId] = useState(() => params.get('s'))
   const species = selId ? getSpecies(selId) : null
   const sst = data?.nowConditions?.sstF
+  const closeDetail = () => { setSelId(null); if (params.get('s')) setParams({}, { replace: true }) }
 
   // "Hot right now" — in-season targets ranked by how well today's water fits them.
   const hot = useMemo(() => {
@@ -32,7 +42,7 @@ export default function Species() {
     }).filter((x) => x.open).sort((a, b) => b.score - a.score).slice(0, 4)
   }, [sst])
 
-  if (species) return <Detail s={species} data={data} gear={gear} onBack={() => setSelId(null)} />
+  if (species) return <Detail s={species} data={data} gear={gear} onBack={closeDetail} />
 
   return (
     <div className="stack">
@@ -91,6 +101,10 @@ function Detail({ s, data, gear, onBack }) {
   const needsFly = /\bfly\b|\b\d{1,2}\s?wt\b/i.test(`${(s.lures || []).join(' ')} ${s.rig}`)
   const ownsFly = (gear || []).some((g) => /fly|wt/i.test(`${g.name} ${g.category}`))
   const gearFlag = needsFly && (gear || []).length > 0 && !ownsFly
+  const allCatches = useLiveQuery(() => db.catches.toArray(), [], [])
+  const mine = (allCatches || []).filter((c) => matchSpecies(c.species, s))
+  const myPR = mine.reduce((m, c) => (c.lengthIn != null && c.lengthIn > (m?.lengthIn ?? -1) ? c : m), null)
+  const lastCaught = mine.length ? Math.max(...mine.map((c) => c.caughtAt)) : null
 
   return (
     <div className="stack">
@@ -124,6 +138,14 @@ function Detail({ s, data, gear, onBack }) {
           </div>
         )}
       </div>
+
+      {mine.length > 0 && (
+        <div className="card stack-sm">
+          <div className="eyebrow">Your record</div>
+          <div className="h2">{mine.length} logged{myPR?.lengthIn ? ` · PR ${myPR.lengthIn}"` : ''}</div>
+          <div className="faint" style={{ fontSize: 12 }}>{lastCaught ? `Last one ${fmtDateShort(new Date(lastCaught))}` : ''}{myPR?.lengthIn ? ` · best on ${fmtDateShort(new Date(myPR.caughtAt))}` : ''}</div>
+        </div>
+      )}
 
       <div className="card stack-sm">
         <div className="eyebrow">Rig & leader</div>
