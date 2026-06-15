@@ -330,6 +330,49 @@ textarea.input { min-height: 80px; padding: var(--sp-3); resize: vertical; }
 .reg-row:first-of-type { border-top: none; }
 .reg-name { font-weight: 650; }
 
+/* ---- Cleaning-table calculator ---------------------------------------- */
+.btn.sm { min-height: 34px; padding: 0 12px; font-size: 13px; }
+
+.step { display: inline-flex; align-items: center; gap: 2px; background: var(--surface-2); border: 1px solid var(--border-soft); border-radius: 999px; padding: 3px; }
+.step-btn { width: 32px; height: 32px; border: none; border-radius: 999px; background: transparent; color: var(--text); font-size: 20px; font-weight: 700; line-height: 1; display: grid; place-items: center; cursor: pointer; }
+.step-btn:active { background: var(--accent-soft); transform: scale(.92); }
+.step-btn:disabled { opacity: .3; }
+.step-val { min-width: 26px; text-align: center; font-weight: 800; font-variant-numeric: tabular-nums; font-size: 16px; }
+
+.clean-grid { display: grid; grid-template-columns: 1fr; gap: 2px; }
+@media (min-width: 560px) { .clean-grid { grid-template-columns: 1fr 1fr; column-gap: 18px; } }
+.clean-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 0; border-top: 1px solid var(--border-soft); }
+.clean-row.on .clean-name { color: var(--accent); font-weight: 700; }
+.clean-name { font-size: 14.5px; }
+
+.empty-note { display: flex; align-items: center; gap: 14px; }
+.empty-glyph { width: 46px; height: 46px; flex: none; display: grid; place-items: center; border-radius: 14px; background: var(--accent-soft); color: var(--accent); }
+
+.lim-card { display: grid; gap: 9px; }
+.lim-card.s-over { border-color: var(--bad); }
+.lim-title { font-weight: 750; font-size: 16px; }
+.lim-count { font-variant-numeric: tabular-nums; font-weight: 850; font-size: 22px; }
+.lim-cap { color: var(--text-faint); font-weight: 600; font-size: 15px; }
+.lim-bar { height: 8px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.lim-bar > span { display: block; height: 100%; border-radius: 999px; background: var(--good); transition: width .25s ease; }
+.lim-bar > span.s-at { background: var(--caution); }
+.lim-bar > span.s-over { background: var(--bad); }
+.lim-sub { font-size: 13px; color: var(--text-dim); }
+.lim-members { display: grid; gap: 0; margin-top: 2px; }
+.lim-member { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; padding: 5px 0; border-top: 1px solid var(--border-soft); }
+.lim-member.over, .lim-member.over .faint { color: var(--bad); }
+.lim-note { font-size: 11.5px; margin: 2px 0 0; }
+
+.lim-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid var(--border-soft); }
+.lim-row:first-of-type { border-top: none; }
+.lim-row-name { font-weight: 650; font-size: 14.5px; }
+.lim-pill { flex: none; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: var(--good-soft); color: var(--good); white-space: nowrap; }
+.lim-pill.s-at { background: var(--caution-soft); color: var(--caution); }
+.lim-pill.s-over { background: var(--bad-soft); color: var(--bad); }
+
+.yield-big { font-weight: 850; font-size: 26px; font-variant-numeric: tabular-nums; }
+.yield-big span { font-size: 14px; color: var(--text-faint); font-weight: 600; }
+
 /* ---- Module tiles ------------------------------------------------------ */
 .tile-grid { display: grid; grid-template-columns: 1fr; gap: var(--sp-2); }
 @media (min-width: 560px) { .tile-grid { grid-template-columns: 1fr 1fr; } }

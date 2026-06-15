@@ -1,7 +1,7 @@
 import {
   IcHome, IcCalendar, IcMoon, IcFish, IcBook, IcHook, IcTrophy, IcStar,
   IcCrab, IcLobster, IcShrimp, IcAnchor, IcShield, IcCog, IcMap, IcClock, IcWaves,
-  IcSun, IcFlame, IcGrid, IcGear, IcMedal, IcPin,
+  IcSun, IcFlame, IcGrid, IcGear, IcMedal, IcPin, IcKnife,
 } from '../components/icons.jsx'
 
 // Full grouped navigation (desktop sidebar + mobile "More" drawer).
@@ -36,6 +36,7 @@ export const NAV_GROUPS = [
   {
     title: 'Harvest',
     items: [
+      { to: '/cleaning', label: 'Cleaning Table', Icon: IcKnife },
       { to: '/crab', label: 'Stone Crab', Icon: IcCrab },
       { to: '/lobster', label: 'Spiny Lobster', Icon: IcLobster },
       { to: '/shrimp', label: 'Shrimp', Icon: IcShrimp },

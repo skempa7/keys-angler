@@ -67,3 +67,4 @@ export const IcPin = (p) => (<svg {...S} {...p}><path d="M12 21s6-5.4 6-10a6 6 0
 export const IcFlame = (p) => (<svg {...S} {...p}><path d="M12 3c1.2 3.2-2 4.2-2 7.2a2 2 0 0 0 4 0c2 1.8 3 3.6 3 6.1A5 5 0 0 1 7 16.3C7 12.5 10 9.6 12 3Z" /></svg>)
 export const IcMedal = (p) => (<svg {...S} {...p}><circle cx="12" cy="14.5" r="5" /><path d="M9 10 7 3h4l1.5 4M15 10 17 3h-4M12 12.6l.9 1.9 2 .2-1.5 1.4.4 2L12 17l-1.8 1 .4-2L9 14.7l2-.2Z" /></svg>)
 export const IcHook = (p) => (<svg {...S} {...p}><path d="M14.5 4.5v7a4.5 4.5 0 0 1-9 0" /><circle cx="14.5" cy="3.4" r="1.5" /><path d="M3.8 11.5 5.5 13l1.7-1.5" /></svg>)
+export const IcKnife = (p) => (<svg {...S} {...p}><path d="M3 14c5-1 9-4.5 13-9.5 1 3 .4 6.5-2 9.4C11.5 16.5 7 17 3 14Z" /><path d="m9.5 14.5-4 5M14 10l3.5 3.5a2.1 2.1 0 0 0 3-3L17 7" /></svg>)
