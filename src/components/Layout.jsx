@@ -5,6 +5,7 @@ import BottomNav from './BottomNav.jsx'
 import StatusBar from './StatusBar.jsx'
 import RewardsToast from './RewardsToast.jsx'
 import Onboarding from './Onboarding.jsx'
+import QuickLogSheet from './QuickLogSheet.jsx'
 import { IcFish } from './icons.jsx'
 
 export default function Layout() {
@@ -25,6 +26,7 @@ export default function Layout() {
         </Suspense>
       </main>
       <BottomNav />
+      <QuickLogSheet />
       <RewardsToast />
       <Onboarding />
     </div>

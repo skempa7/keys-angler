@@ -38,10 +38,10 @@ export default function BottomNav() {
       <nav className="bottomnav" aria-label="Primary">
         <NavLink to="/" end className="bn-item"><span className="nav-ico"><IcHome /></span>Home</NavLink>
         <NavLink to="/plan" className="bn-item"><span className="nav-ico"><IcCalendar /></span>Plan</NavLink>
-        <NavLink to="/log" className="bn-log" aria-label="Log a catch">
+        <button type="button" className="bn-log" aria-label="Log a catch — one tap" onClick={() => window.dispatchEvent(new CustomEvent('ka-quicklog'))}>
           <span className="bn-log-btn"><IcPlus /></span>
           <span className="bn-log-label">Log</span>
-        </NavLink>
+        </button>
         <NavLink to={adaptive.to} end={adaptive.end} className="bn-item"><span className="nav-ico"><AdIcon /></span>{SHORT[adaptive.to] || adaptive.label}</NavLink>
         <button className="bn-item" onClick={() => setDrawerOpen(true)}><span className="nav-ico"><IcGrid /></span>More</button>
       </nav>
