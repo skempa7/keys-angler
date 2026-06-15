@@ -22,6 +22,8 @@ import Recap from './pages/Recap.jsx'
 import Patterns from './pages/Patterns.jsx'
 import Offshore from './pages/Offshore.jsx'
 import Knots from './pages/Knots.jsx'
+import Tournament from './pages/Tournament.jsx'
+import Compass from './pages/Compass.jsx'
 import OnWater from './pages/OnWater.jsx'
 
 // Code-split the map page so Leaflet stays out of the initial bundle.
@@ -49,6 +51,8 @@ export default function App() {
           <Route path="patterns" element={<Patterns />} />
           <Route path="offshore" element={<Offshore />} />
           <Route path="knots" element={<Knots />} />
+          <Route path="tournament" element={<Tournament />} />
+          <Route path="compass" element={<Compass />} />
           <Route path="crab" element={<StoneCrab />} />
           <Route path="lobster" element={<Lobster />} />
           <Route path="shrimp" element={<Shrimp />} />
