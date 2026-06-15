@@ -7,7 +7,8 @@ import RewardsToast from './RewardsToast.jsx'
 import Onboarding from './Onboarding.jsx'
 import QuickLogSheet from './QuickLogSheet.jsx'
 import SkyBackground from './SkyBackground.jsx'
-import { IcFish } from './icons.jsx'
+import CommandBar from './CommandBar.jsx'
+import { IcFish, IcSearch } from './icons.jsx'
 
 export default function Layout() {
   return (
@@ -20,6 +21,7 @@ export default function Layout() {
           Keys Angler
         </div>
         <div className="spacer" />
+        <button className="icon-btn" onClick={() => window.dispatchEvent(new CustomEvent('ka-search'))} aria-label="Search"><IcSearch width={20} height={20} /></button>
         <StatusBar />
       </header>
       <main className="content">
@@ -28,6 +30,7 @@ export default function Layout() {
         </Suspense>
       </main>
       <BottomNav />
+      <CommandBar />
       <QuickLogSheet />
       <RewardsToast />
       <Onboarding />

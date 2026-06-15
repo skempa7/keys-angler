@@ -58,6 +58,7 @@ export const IcChevron = (p) => (
 export const IcCheck = (p) => (<svg {...S} {...p}><path d="m5 12.5 4.5 4.5L19 7" /></svg>)
 export const IcX = (p) => (<svg {...S} {...p}><path d="M6 6l12 12M18 6 6 18" /></svg>)
 export const IcPlus = (p) => (<svg {...S} {...p}><path d="M12 5v14M5 12h14" /></svg>)
+export const IcSearch = (p) => (<svg {...S} {...p}><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" /></svg>)
 export const IcStar = (p) => (<svg {...S} {...p}><path d="M12 3.6l2.6 5.5 6 .7-4.4 4.1 1.1 5.9L12 17.6 6.7 19.8l1.1-5.9L3.4 9.8l6-.7Z" /></svg>)
 export const IcMap = (p) => (<svg {...S} {...p}><path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6 9 4Z" /><path d="M9 4v14M15 6v14" /></svg>)
 export const IcShare = (p) => (<svg {...S} {...p}><circle cx="6" cy="12" r="2.4" /><circle cx="17.5" cy="6" r="2.4" /><circle cx="17.5" cy="18" r="2.4" /><path d="m8.1 10.9 7.3-3.8M8.1 13.1l7.3 3.8" /></svg>)
