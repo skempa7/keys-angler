@@ -543,6 +543,11 @@ textarea.input { min-height: 80px; padding: var(--sp-3); resize: vertical; }
   background: rgba(2,35,26,.95); color: #d6ffe9; border: 1px solid var(--good);
   border-radius: 12px; padding: 12px 14px; text-align: center; font-weight: 600;
 }
+.ow-drift {
+  width: 100%; margin-top: auto; padding: 13px; border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.05);
+  color: #cfe6ee; font-weight: 700; font-size: 15px; letter-spacing: .01em;
+}
 
 /* ---- Weather card ------------------------------------------------------ */
 .weather-card { display: flex; flex-direction: column; gap: var(--sp-3); }

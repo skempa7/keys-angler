@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useConditions } from '../hooks/useConditions.js'
 import { snapshotFromConditions } from '../services/conditions.js'
 import { tideStateAt } from '../engine/tideStage.js'
 import { db } from '../db/db.js'
 import { FINFISH } from '../data/regs.js'
+import { distanceNm } from '../data/stations.js'
 import { fmtTime, relTime, compass, toneColor } from '../utils/format.js'
 import WindArrow from '../components/WindArrow.jsx'
 import { IcX, IcFish } from '../components/icons.jsx'
@@ -16,6 +17,8 @@ import { haptic } from '../utils/haptic.js'
 const KEEPERS = ['yellowtail', 'mutton', 'hogfish', 'black-grouper']
 const SHORT = { yellowtail: 'Yellowtail', mutton: 'Mutton', hogfish: 'Hogfish', 'black-grouper': 'Black grouper' }
 const hm = (min) => { if (min == null) return '—'; const a = Math.max(0, Math.round(min)); return a < 60 ? `${a}m` : `${Math.floor(a / 60)}h ${a % 60}m` }
+const toRad = (d) => (d * Math.PI) / 180
+const bearing = (a, b, c, d) => { const y = Math.sin(toRad(d - b)) * Math.cos(toRad(c)); const x = Math.cos(toRad(a)) * Math.sin(toRad(c)) - Math.sin(toRad(a)) * Math.cos(toRad(c)) * Math.cos(toRad(d - b)); return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360 }
 
 function useWakeLock() {
   const [on, setOn] = useState(false)
@@ -44,7 +47,31 @@ export default function OnWater() {
   const wake = useWakeLock()
   const [now, setNow] = useState(() => Date.now())
   const [flash, setFlash] = useState(null)
+  const [track, setTrack] = useState(null)
+  const watchRef = useRef(null)
   useEffect(() => { const id = setInterval(() => setNow(Date.now()), 15000); return () => clearInterval(id) }, [])
+  useEffect(() => () => { if (watchRef.current != null) navigator.geolocation?.clearWatch(watchRef.current) }, [])
+
+  const toggleTrack = () => {
+    if (watchRef.current != null) { navigator.geolocation.clearWatch(watchRef.current); watchRef.current = null; setTrack((t) => (t ? { ...t, recording: false } : null)); haptic(); return }
+    if (!navigator.geolocation) return
+    setTrack({ fixes: [], speedKn: null, dirDeg: null, distNm: 0, recording: true })
+    haptic(18)
+    watchRef.current = navigator.geolocation.watchPosition((p) => {
+      setTrack((t) => {
+        const fix = { lat: p.coords.latitude, lon: p.coords.longitude, t: p.timestamp || Date.now() }
+        const fixes = [...(t?.fixes || []), fix]
+        let { speedKn = null, dirDeg = null, distNm = 0 } = t || {}
+        if (fixes.length >= 2) {
+          const a = fixes[fixes.length - 2]
+          const d = distanceNm(a.lat, a.lon, fix.lat, fix.lon)
+          const hrs = (fix.t - a.t) / 3600000
+          if (hrs > 0 && d > 0.0005) { speedKn = d / hrs; dirDeg = bearing(a.lat, a.lon, fix.lat, fix.lon); distNm += d }
+        }
+        return { fixes, speedKn, dirDeg, distNm, recording: true }
+      })
+    }, () => {}, { enableHighAccuracy: true, maximumAge: 2000 })
+  }
 
   const quickLog = async () => {
     const snap = snapshotFromConditions(data, null)
@@ -138,6 +165,12 @@ export default function OnWater() {
           {keepers.map((f) => <span key={f.id} className="ow-keep">{SHORT[f.id] || f.name} <b>{f.minSizeIn}"</b></span>)}
         </div>
       )}
+
+      <button className="ow-drift" onClick={toggleTrack}>
+        {track?.recording
+          ? `◉ Drift ${track.speedKn != null ? track.speedKn.toFixed(1) : '…'} kn ${track.dirDeg != null ? compass(track.dirDeg) : ''} · ${track.distNm.toFixed(2)} nm — stop`
+          : 'Record drift'}
+      </button>
 
       <button className="ow-log" onClick={quickLog}><IcFish width={32} height={32} /> LOG CATCH</button>
       {flash && <div className="ow-flash">{flash}</div>}
