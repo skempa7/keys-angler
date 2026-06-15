@@ -571,6 +571,23 @@ button.bn-log { background: none; border: none; font: inherit; cursor: pointer; 
 .ql-row { display: flex; justify-content: space-between; align-items: center; }
 .ql-q { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-faint); font-weight: 700; }
 
+/* ---- On-water night cockpit + species roll ---------------------------- */
+.onwater.night { background: #070400; }
+.onwater.night .ow-tile { background: rgba(255,196,128,.05); border-color: rgba(255,196,128,.12); }
+.onwater.night .ow-v:not(.ow-hot) { color: #ffd7a1; }
+.onwater.night .ow-k, .onwater.night .ow-asof { color: #b79066; }
+.onwater.night .ow-sub, .onwater.night .ow-keep { color: #c8a583; }
+.onwater.night .ow-x { border-color: rgba(255,196,128,.22); color: #ffd7a1; }
+.onwater.night .ow-drift { color: #e8c89c; border-color: rgba(255,196,128,.18); background: rgba(255,196,128,.05); }
+.ow-roll {
+  position: fixed; left: 14px; right: 14px; bottom: calc(100px + env(safe-area-inset-bottom)); z-index: 6;
+  background: rgba(2,20,26,.97); border: 1px solid var(--good); border-radius: 16px; padding: 12px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.ow-roll-top { display: flex; justify-content: space-between; align-items: center; }
+.ow-roll-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.ow-roll-chip { min-height: 52px; padding: 0 16px; border-radius: 14px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.16); color: #fff; font-weight: 700; font-size: 16px; }
+
 /* ---- Weather card ------------------------------------------------------ */
 .weather-card { display: flex; flex-direction: column; gap: var(--sp-3); }
 .wx-top { display: flex; align-items: center; gap: var(--sp-3); }

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useLiveQuery } from 'dexie-react-hooks'
 import { useNavigate } from 'react-router-dom'
 import { useConditions } from '../hooks/useConditions.js'
 import { snapshotFromConditions } from '../services/conditions.js'
@@ -16,6 +17,7 @@ import { haptic } from '../utils/haptic.js'
 // and one giant tap logs a fish with the full snapshot — all from cache, no signal.
 const KEEPERS = ['yellowtail', 'mutton', 'hogfish', 'black-grouper']
 const SHORT = { yellowtail: 'Yellowtail', mutton: 'Mutton', hogfish: 'Hogfish', 'black-grouper': 'Black grouper' }
+const ROLL = ['Yellowtail Snapper', 'Mutton Snapper', 'Mahi-Mahi', 'Tarpon', 'Bonefish', 'Permit', 'Grouper', 'Hogfish', 'Snook', 'Kingfish']
 const hm = (min) => { if (min == null) return '—'; const a = Math.max(0, Math.round(min)); return a < 60 ? `${a}m` : `${Math.floor(a / 60)}h ${a % 60}m` }
 const toRad = (d) => (d * Math.PI) / 180
 const bearing = (a, b, c, d) => { const y = Math.sin(toRad(d - b)) * Math.cos(toRad(c)); const x = Math.cos(toRad(a)) * Math.sin(toRad(c)) - Math.sin(toRad(a)) * Math.cos(toRad(c)) * Math.cos(toRad(d - b)); return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360 }
@@ -46,9 +48,11 @@ export default function OnWater() {
   const { data, loading } = useConditions({ days: 1 })
   const wake = useWakeLock()
   const [now, setNow] = useState(() => Date.now())
-  const [flash, setFlash] = useState(null)
+  const [justLogged, setJustLogged] = useState(null)
+  const recent = useLiveQuery(() => db.catches.orderBy('caughtAt').reverse().limit(10).toArray(), [], [])
   const [track, setTrack] = useState(null)
   const watchRef = useRef(null)
+  const swipeRef = useRef(null)
   useEffect(() => { const id = setInterval(() => setNow(Date.now()), 15000); return () => clearInterval(id) }, [])
   useEffect(() => () => { if (watchRef.current != null) navigator.geolocation?.clearWatch(watchRef.current) }, [])
 
@@ -81,8 +85,8 @@ export default function OnWater() {
       createdAt: Date.now(), ...snap,
     })
     haptic(22)
-    setFlash('Logged ✓ — set the species in the log later')
-    setTimeout(() => setFlash(null), 2800)
+    setJustLogged(id)
+    setTimeout(() => setJustLogged((cur) => (cur === id ? null : cur)), 8000)
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (p) => db.catches.update(id, { lat: p.coords.latitude, lon: p.coords.longitude }),
@@ -90,6 +94,11 @@ export default function OnWater() {
       )
     }
   }
+  const setSpecies = (s) => { if (justLogged) db.catches.update(justLogged, { species: s }); haptic(); setJustLogged(null) }
+  const undoLog = () => { if (justLogged) db.catches.delete(justLogged); haptic(); setJustLogged(null) }
+  // Swipe in from the right edge to exit (thumb-reachable; the top X is a backup).
+  const onTouchStart = (e) => { const t = e.touches[0]; swipeRef.current = t && t.clientX > window.innerWidth - 36 ? t.clientX : null }
+  const onTouchEnd = (e) => { if (swipeRef.current == null) return; const x = e.changedTouches[0]?.clientX ?? swipeRef.current; if (swipeRef.current - x > 70) navigate('/'); swipeRef.current = null }
 
   if (loading || !data) {
     return (
@@ -110,9 +119,12 @@ export default function OnWater() {
   const fetchedAts = Object.values(data.sources || {}).map((s) => s.fetchedAt).filter(Boolean)
   const lastUpdated = fetchedAts.length ? Math.min(...fetchedAts) : null
   const keepers = KEEPERS.map((id) => FINFISH.find((f) => f.id === id)).filter((f) => f && f.minSizeIn)
+  const sun = data.today?.solunar?.sun
+  const night = sun?.rise && sun?.set ? nowDate < sun.rise || nowDate > sun.set : false
+  const rollSpecies = [...new Set([...(recent || []).map((c) => c.species), ...ROLL])].filter(Boolean).slice(0, 8)
 
   return (
-    <div className="onwater">
+    <div className={`onwater ${night ? 'night' : ''}`} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
       <div className="ow-top">
         <button className="ow-x" onClick={() => navigate('/')} aria-label="Exit on-water mode"><IcX width={26} height={26} /></button>
         <div className="ow-asof">{wake ? 'screen on · ' : ''}data {relTime(lastUpdated)}</div>
@@ -173,7 +185,15 @@ export default function OnWater() {
       </button>
 
       <button className="ow-log" onClick={quickLog}><IcFish width={32} height={32} /> LOG CATCH</button>
-      {flash && <div className="ow-flash">{flash}</div>}
+
+      {justLogged && (
+        <div className="ow-roll">
+          <div className="ow-roll-top"><b style={{ color: 'var(--good)' }}>Logged ✓ — what was it?</b><button className="chip" onClick={undoLog}>Undo</button></div>
+          <div className="ow-roll-chips">
+            {rollSpecies.map((s) => <button key={s} className="ow-roll-chip" onClick={() => setSpecies(s)}>{s}</button>)}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
