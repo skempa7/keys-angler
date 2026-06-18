@@ -223,10 +223,17 @@ ul { margin: 0; padding: 0; list-style: none; }
   padding: 7px 13px; border-radius: var(--r-pill);
   background: var(--surface-2); border: 1px solid var(--border-soft);
   font-size: 13px; font-weight: 600; color: var(--text-dim);
-  min-height: 34px; white-space: nowrap; line-height: 1.2;
+  min-height: 34px; max-width: 100%; overflow-wrap: anywhere; line-height: 1.2;
 }
 .chip.active { background: var(--accent); color: #03212c; border-color: transparent; }
 .chip.sel { background: var(--accent-soft); border-color: var(--accent); color: var(--text); }
+
+/* Bait board: long KB bait names wrap cleanly (no overflowing pills). */
+.bait-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--border-soft); }
+.bait-row:first-of-type { border-top: none; }
+.bait-name { flex: 1; min-width: 0; font-size: 14px; font-weight: 650; overflow-wrap: anywhere; }
+.bait-row.top .bait-name { color: var(--accent); }
+.bait-reason { flex: none; font-size: 12px; color: var(--text-faint); text-align: right; }
 
 .tag {
   display: inline-flex; align-items: center; gap: 5px;

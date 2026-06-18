@@ -83,11 +83,11 @@ export default function Species() {
         <div className="card stack-sm">
           <div className="eyebrow">Tie on now · bait board</div>
           {baitBoard.map((b) => (
-            <div key={b.key} className="row between" style={{ alignItems: 'center', gap: 10 }}>
-              <span className={`chip ${b.top ? 'sel' : ''}`}>{b.label}</span>
+            <div key={b.key} className={`bait-row ${b.top ? 'top' : ''}`}>
+              <span className="bait-name">{b.label}</span>
               {b.mine && b.mine.n >= 2
-                ? <span className="tag" style={{ background: 'var(--surface-2)', color: 'var(--good)', flex: 'none' }}>you · {b.mine.n}</span>
-                : <span className="faint" style={{ fontSize: 12, textAlign: 'right' }}>{b.reason}</span>}
+                ? <span className="bait-reason" style={{ color: 'var(--good)' }}>you · {b.mine.n}</span>
+                : <span className="bait-reason">{b.reason}</span>}
             </div>
           ))}
           <div className="faint" style={{ fontSize: 11 }}>From the fish biting today, ranked by water &amp; your log.</div>
