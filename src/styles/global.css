@@ -52,7 +52,8 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .topbar .brand {
   display: flex; align-items: center; gap: var(--sp-2);
-  font-weight: 700; letter-spacing: -0.01em; font-size: 17px;
+  font-weight: 500; letter-spacing: .16em; font-size: 15px; text-transform: uppercase;
+  text-shadow: var(--text-glow);
 }
 .topbar .brand .mark { color: var(--accent); display: grid; place-items: center; }
 .topbar .spacer { flex: 1; }
@@ -111,12 +112,13 @@ ul { margin: 0; padding: 0; list-style: none; }
   transition: color .15s var(--ease);
 }
 .bn-item.active { color: var(--accent); }
+.bn-item.active .nav-ico { filter: drop-shadow(0 0 6px var(--accent)); }
 .bn-item:active { background: var(--surface-2); }
 .bn-log { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-faint); font-size: 10.5px; font-weight: 700; }
 .bn-log-btn {
   width: 52px; height: 52px; margin-top: -20px; border-radius: 50%;
   display: grid; place-items: center; color: #03212c; background: var(--accent);
-  box-shadow: 0 6px 16px rgba(54, 197, 240, .4); border: 3px solid var(--bg);
+  box-shadow: 0 6px 18px var(--accent-soft), 0 2px 8px rgba(0, 0, 0, .3); border: 3px solid var(--bg);
 }
 .bn-log.active .bn-log-label { color: var(--accent); }
 
@@ -164,11 +166,14 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 /* ---- Cards & layout primitives ----------------------------------------- */
 .card {
-  background: var(--surface);
+  background: var(--card-bg, var(--surface));
   border: 1px solid var(--border-soft);
+  border-top-color: var(--card-edge, var(--border-soft));
   border-radius: var(--r-3);
   padding: var(--sp-4);
   box-shadow: var(--shadow-sm);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
 }
 .card.flush { padding: 0; overflow: hidden; }
 .stack > * + * { margin-top: var(--sp-4); }
@@ -186,7 +191,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .h1 { font-size: 23px; font-weight: 750; letter-spacing: -0.02em; }
 .h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
 .eyebrow {
-  font-size: 11.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
+  font-size: 11.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
   color: var(--text-faint);
 }
 .muted { color: var(--text-dim); }
