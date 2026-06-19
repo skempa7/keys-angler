@@ -49,7 +49,7 @@ export default defineConfig(({ command }) => {
           shortcuts: [
             { name: 'On-water mode', short_name: 'On-water', url: '/keys-angler/onwater' },
             { name: 'Log a catch', short_name: 'Log', url: '/keys-angler/log' },
-            { name: 'Should I go?', short_name: 'Should I go', url: '/keys-angler/' },
+            { name: 'Should I go?', short_name: 'Should I go', url: '/keys-angler/app' },
           ],
         },
         workbox: {

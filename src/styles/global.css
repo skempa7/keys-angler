@@ -12,7 +12,8 @@ body {
   font-size: 16px;
   line-height: 1.45;
   color: var(--text);
-  background: #02080d;
+  background: var(--bg);
+  background-image: var(--bg-grad);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -72,6 +73,13 @@ ul { margin: 0; padding: 0; list-style: none; }
   );
   animation: light-drift 25s ease-in-out infinite;
 }
+
+/* Light/Sun theme: the dark ocean backdrop is dark-only; chrome follows theme tokens
+   so the bright-glare theme stays legible (Bolt hardcoded these dark). */
+html[data-theme='sun'] .app-ocean-bg { display: none; }
+html[data-theme='sun'] .topbar { background: var(--scrim); border-bottom-color: var(--border-soft); }
+html[data-theme='sun'] .bottomnav { background: var(--scrim); border-top-color: var(--border-soft); }
+html[data-theme='sun'] .sidebar { background: var(--scrim); border-right-color: var(--border-soft); }
 
 .topbar {
   position: sticky;

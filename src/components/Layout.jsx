@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar.jsx'
 import BottomNav from './BottomNav.jsx'
 import StatusBar from './StatusBar.jsx'
