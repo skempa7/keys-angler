@@ -6,6 +6,8 @@ import { db } from '../db/db.js'
 import { edgeNow } from '../engine/personalEdge.js'
 import { oneAnswer, answerCountdown, sinceLastLook } from '../engine/headline.js'
 import { momentChip } from '../engine/momentChip.js'
+import { todaysPlaybook } from '../engine/playbook.js'
+import { watchList } from '../engine/watchlist.js'
 import { armAlerts } from '../services/notify.js'
 import ScoreRing from '../components/ScoreRing.jsx'
 import FactorList from '../components/FactorList.jsx'
@@ -55,6 +57,8 @@ export default function Dashboard() {
   const ans = oneAnswer(data, new Date(tick))
   const countdown = answerCountdown(ans, new Date(tick))
   const moment = momentChip(data, new Date(tick), ans)
+  const playbook = todaysPlaybook({ conditions: data.nowConditions, pressureTrend: data.pressureTrend, tideNow: data.tideNow, solunar: data.today.solunar, stormToday: data.stormToday, sun: data.today.solunar?.sun, now: new Date(tick) })
+  const watch = watchList({ data, now: new Date(tick) })
   const tone = nowScore.verdict.tone
   const best = today.windows[0]
   const fetchedAts = Object.values(sources).map((s) => s.fetchedAt).filter(Boolean)
@@ -129,6 +133,18 @@ export default function Dashboard() {
         </div>
       )}
 
+      {watch.length > 0 && (
+        <div className="card stack-sm">
+          <div className="eyebrow">Keep in mind today</div>
+          {watch.map((w, i) => (
+            <div key={i} className="row" style={{ gap: 8, alignItems: 'baseline', fontSize: 13.5 }}>
+              <span style={{ color: toneColor(w.tone === 'bad' ? 'bad' : w.tone === 'caution' ? 'caution' : 'accent'), flex: 'none', fontWeight: 700 }}>•</span>
+              <span>{w.text}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="card hero raised">
         <ReefBackdrop />
         <ScoreRing score={nowScore.score} tone={tone} />
@@ -173,6 +189,19 @@ export default function Dashboard() {
         </div>
         <FactorList factors={nowScore.factors} />
       </div>
+
+      {playbook.length > 0 && (
+        <div className="card stack-sm">
+          <div className="eyebrow">Today's playbook · what's different</div>
+          {playbook.map((p, i) => (
+            <div key={i} className="row" style={{ gap: 10, alignItems: 'baseline' }}>
+              <span className="tag" style={{ flex: 'none', minWidth: 74, justifyContent: 'center', background: 'var(--surface-2)', color: toneColor(p.tone === 'good' ? 'good' : p.tone === 'caution' ? 'caution' : 'accent') }}>{p.tag}</span>
+              <span style={{ fontSize: 13.5 }}>{p.tip}</span>
+            </div>
+          ))}
+          <div className="faint" style={{ fontSize: 11 }}>Adjustments vs. a normal day, read from today's conditions — your local knowledge wins ties.</div>
+        </div>
+      )}
 
       {nextWindow && (
         <div className="card stack-sm">

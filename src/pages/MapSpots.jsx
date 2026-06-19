@@ -11,6 +11,7 @@ import { getHabitat, crabHabitatScore } from '../services/habitat.js'
 import { driftPlan, SPOT_TYPES } from '../engine/drift.js'
 import { IcX, IcPin, IcFlame, IcDrift } from '../components/icons.jsx'
 import SpotCrossSection from '../components/SpotCrossSection.jsx'
+import { rankSpots } from '../engine/spotRank.js'
 
 const C_DRIFT = '#36c5f0'
 const C_CURRENT = '#13b9c9'
@@ -220,6 +221,26 @@ export default function MapSpots() {
           </div>
         </div>
       )}
+
+      {mapped.length > 0 && data?.nowConditions && (() => {
+        const ranked = rankSpots(mapped, { sstF: data.nowConditions.sstF, windKn: data.nowConditions.windKn, windDir: data.nowConditions.windDir, tideNow: data.tideNow }).slice(0, 5)
+        return (
+          <div className="card stack-sm">
+            <div className="eyebrow">Best spots today</div>
+            {ranked.map((r, i) => (
+              <div key={r.spot.id} className="catch-row" style={{ cursor: 'pointer' }} onClick={() => mapRef.current?.setView([r.spot.lat, r.spot.lon], 15)}>
+                <span style={{ width: 22, textAlign: 'center', fontWeight: 800, color: i === 0 ? 'var(--accent)' : 'var(--text-faint)', flex: 'none' }}>{i + 1}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 650 }}>{r.spot.name}</div>
+                  <div className="faint" style={{ fontSize: 12 }}>{r.why.join(' · ') || 'tap to view'}</div>
+                </div>
+                <span className="tag" style={{ flex: 'none', background: 'var(--surface-2)', color: r.score >= 66 ? 'var(--good)' : r.score >= 45 ? 'var(--caution)' : 'var(--text-dim)' }}>{r.score}</span>
+              </div>
+            ))}
+            <div className="faint" style={{ fontSize: 11 }}>Ranked by what's in season at each depth, water temp, the tide, your hits, and wind exposure — guidance, trust your eyes.</div>
+          </div>
+        )
+      })()}
 
       <div className="card stack-sm">
         <div className="eyebrow">Mapped spots · {mapped.length}</div>
