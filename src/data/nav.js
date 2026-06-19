@@ -9,7 +9,7 @@ export const NAV_GROUPS = [
   {
     title: 'On the water',
     items: [
-      { to: '/app', label: 'Should I Go', Icon: IcHome, end: true },
+      { to: '/', label: 'Should I Go', Icon: IcHome, end: true },
       { to: '/onwater', label: 'On-Water Mode', Icon: IcWaves },
       { to: '/drift', label: 'Drift or Anchor', Icon: IcDrift },
       { to: '/bite', label: 'Bite Times', Icon: IcMoon },

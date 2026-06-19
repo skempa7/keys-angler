@@ -7,7 +7,7 @@ import NavDrawer from './NavDrawer.jsx'
 // The 4th slot is adaptive: it becomes whatever page you last opened from "More",
 // so your current focus is one tap away. Defaults to Target.
 const ALL = NAV_GROUPS.flatMap((g) => g.items)
-const PINNED = new Set(['/app', '/plan', '/log']) // always-present bottom slots
+const PINNED = new Set(['/', '/plan', '/log']) // always-present bottom slots
 const DEFAULT_SLOT = '/target'
 const byPath = (p) => ALL.find((i) => i.to === p)
 // Compact labels that fit the tiny slot.
@@ -36,7 +36,7 @@ export default function BottomNav() {
   return (
     <>
       <nav className="bottomnav" aria-label="Primary">
-        <NavLink to="/app" end className="bn-item"><span className="nav-ico"><IcHome /></span>Home</NavLink>
+        <NavLink to="/" end className="bn-item"><span className="nav-ico"><IcHome /></span>Home</NavLink>
         <NavLink to="/plan" className="bn-item"><span className="nav-ico"><IcCalendar /></span>Plan</NavLink>
         <button type="button" className="bn-log" aria-label="Log a catch — one tap" onClick={() => window.dispatchEvent(new CustomEvent('ka-quicklog'))}>
           <span className="bn-log-btn"><IcPlus /></span>

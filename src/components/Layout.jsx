@@ -8,7 +8,7 @@ import Onboarding from './Onboarding.jsx'
 import QuickLogSheet from './QuickLogSheet.jsx'
 import CommandBar from './CommandBar.jsx'
 import LocationSheet from './LocationSheet.jsx'
-import { IcFish, IcSearch, IcHome } from './icons.jsx'
+import { IcFish, IcSearch } from './icons.jsx'
 
 export default function Layout() {
   return (
@@ -25,7 +25,6 @@ export default function Layout() {
           Keys Angler
         </Link>
         <div className="spacer" />
-        <Link to="/" className="icon-btn" aria-label="Back to home"><IcHome width={20} height={20} /></Link>
         <button className="icon-btn" onClick={() => window.dispatchEvent(new CustomEvent('ka-search'))} aria-label="Search"><IcSearch width={20} height={20} /></button>
         <StatusBar />
       </header>

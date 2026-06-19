@@ -73,6 +73,10 @@ ul { margin: 0; padding: 0; list-style: none; }
   );
   animation: light-drift 25s ease-in-out infinite;
 }
+@keyframes light-drift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(5%); }
+}
 
 /* Light/Sun theme: the dark ocean backdrop is dark-only; chrome follows theme tokens
    so the bright-glare theme stays legible (Bolt hardcoded these dark). */

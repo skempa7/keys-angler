@@ -98,12 +98,12 @@ export default function OnWater() {
   const undoLog = () => { if (justLogged) db.catches.delete(justLogged); haptic(); setJustLogged(null) }
   // Swipe in from the right edge to exit (thumb-reachable; the top X is a backup).
   const onTouchStart = (e) => { const t = e.touches[0]; swipeRef.current = t && t.clientX > window.innerWidth - 36 ? t.clientX : null }
-  const onTouchEnd = (e) => { if (swipeRef.current == null) return; const x = e.changedTouches[0]?.clientX ?? swipeRef.current; if (swipeRef.current - x > 70) navigate('/app'); swipeRef.current = null }
+  const onTouchEnd = (e) => { if (swipeRef.current == null) return; const x = e.changedTouches[0]?.clientX ?? swipeRef.current; if (swipeRef.current - x > 70) navigate('/'); swipeRef.current = null }
 
   if (loading || !data) {
     return (
       <div className="onwater">
-        <button className="ow-x" onClick={() => navigate('/app')} aria-label="Exit"><IcX width={26} height={26} /></button>
+        <button className="ow-x" onClick={() => navigate('/')} aria-label="Exit"><IcX width={26} height={26} /></button>
         <div className="ow-loading">Loading your water…</div>
       </div>
     )
@@ -126,7 +126,7 @@ export default function OnWater() {
   return (
     <div className={`onwater ${night ? 'night' : ''}`} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
       <div className="ow-top">
-        <button className="ow-x" onClick={() => navigate('/app')} aria-label="Exit on-water mode"><IcX width={26} height={26} /></button>
+        <button className="ow-x" onClick={() => navigate('/')} aria-label="Exit on-water mode"><IcX width={26} height={26} /></button>
         <div className="ow-asof">{wake ? 'screen on · ' : ''}data {relTime(lastUpdated)}</div>
       </div>
 
