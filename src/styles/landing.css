@@ -1,0 +1,539 @@
+/* ===========================================================================
+   Keys Angler — Landing page styles
+   Full-screen ocean background with animated fish, glassmorphic nav, hero content
+   =========================================================================== */
+
+.landing {
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ---- Animated ocean background ------------------------------------------ */
+.ocean-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ocean-depths {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    #0a1628 0%,
+    #081220 25%,
+    #050d18 50%,
+    #030a12 75%,
+    #02080d 100%
+  );
+}
+
+/* Subtle light rays from above */
+.light-rays {
+  position: absolute;
+  top: -50%;
+  left: -20%;
+  width: 160%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse 80% 50% at 50% 0%,
+    rgba(54, 224, 240, 0.08) 0%,
+    rgba(54, 224, 240, 0.03) 30%,
+    transparent 60%
+  );
+  animation: light-drift 20s ease-in-out infinite;
+}
+
+@keyframes light-drift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(5%); }
+}
+
+/* Bubbles rising */
+.bubbles {
+  position: absolute;
+  inset: 0;
+}
+
+.bubbles::before,
+.bubbles::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(54, 224, 240, 0.3);
+  animation: bubble-rise 18s linear infinite;
+}
+
+.bubbles::before {
+  left: 15%;
+  bottom: -10px;
+  animation-delay: 0s;
+}
+
+.bubbles::after {
+  left: 75%;
+  bottom: -10px;
+  animation-delay: 9s;
+}
+
+@keyframes bubble-rise {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-100vh) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* ---- Fish animation layers --------------------------------------------- */
+.fish-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.fish {
+  position: absolute;
+  animation: fish-swim linear infinite;
+}
+
+/* Far fish (small, slow, near-surface) */
+.fish-far .fish {
+  top: 8%;
+  height: 24px;
+  opacity: 0.6;
+}
+.fish-far .f1 { left: -60px; animation-duration: 28s; animation-delay: 0s; }
+.fish-far .f2 { left: -60px; top: 15%; animation-duration: 32s; animation-delay: -12s; }
+.fish-far .f3 { left: -60px; top: 5%; animation-duration: 35s; animation-delay: -22s; }
+
+/* Mid fish (medium size, medium depth) */
+.fish-mid .fish {
+  top: 35%;
+  height: 32px;
+  opacity: 0.5;
+}
+.fish-mid .f4 { left: -70px; animation-duration: 22s; animation-delay: -5s; }
+.fish-mid .f5 { left: -70px; top: 42%; animation-duration: 25s; animation-delay: -15s; }
+.fish-mid .f6 { left: -70px; top: 28%; animation-duration: 27s; animation-delay: -8s; }
+
+/* Near fish (large, slow, deep) */
+.fish-near .fish {
+  top: 65%;
+  height: 40px;
+  opacity: 0.4;
+}
+.fish-near .f7 { left: -80px; animation-duration: 30s; animation-delay: -3s; }
+.fish-near .f8 { left: -80px; top: 72%; animation-duration: 34s; animation-delay: -18s; }
+
+/* Fish swimming animation with sine-wave oscillation */
+@keyframes fish-swim {
+  0% {
+    transform: translateX(0) translateY(0) scaleX(1);
+  }
+  25% {
+    transform: translateX(calc(25vw + 0px)) translateY(-15px) scaleX(1);
+  }
+  50% {
+    transform: translateX(calc(50vw + 0px)) translateY(10px) scaleX(1);
+  }
+  75% {
+    transform: translateX(calc(75vw + 0px)) translateY(-8px) scaleX(1);
+  }
+  100% {
+    transform: translateX(calc(110vw + 80px)) translateY(5px) scaleX(1);
+  }
+}
+
+/* ---- Glassmorphic navigation header ------------------------------------ */
+.landing-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: var(--sp-2) var(--sp-4);
+  padding-top: calc(var(--sp-2) + var(--safe-top));
+  background: rgba(5, 8, 12, 0.6);
+  backdrop-filter: saturate(150%) blur(20px);
+  -webkit-backdrop-filter: saturate(150%) blur(20px);
+  border-bottom: 1px solid rgba(54, 224, 240, 0.15);
+}
+
+.landing-nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.landing-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  text-shadow: var(--text-glow);
+}
+
+.landing-brand-icon {
+  width: 28px;
+  height: 28px;
+  color: var(--accent);
+}
+
+.landing-nav-links {
+  display: flex;
+  gap: var(--sp-5);
+}
+
+.landing-nav-link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dim);
+  transition: color 0.15s var(--ease);
+}
+
+.landing-nav-link:hover {
+  color: var(--text);
+}
+
+.landing-nav-cta {
+  font-size: 13px;
+  padding: 8px 20px;
+  min-height: 38px;
+}
+
+@media (max-width: 640px) {
+  .landing-nav-links {
+    display: none;
+  }
+}
+
+/* ---- Hero section ------------------------------------------------------ */
+.landing-hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--sp-8) + var(--safe-top)) var(--sp-4) var(--sp-8);
+  text-align: center;
+}
+
+.landing-hero-inner {
+  max-width: 720px;
+}
+
+.landing-hero-eyebrow {
+  margin-bottom: var(--sp-3);
+  color: var(--accent);
+  letter-spacing: 0.16em;
+}
+
+.landing-hero-title {
+  margin-bottom: var(--sp-4);
+  color: var(--text);
+  line-height: 1.05;
+}
+
+.landing-hero-accent {
+  color: var(--accent);
+}
+
+.landing-hero-subtitle {
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--text-dim);
+  margin-bottom: var(--sp-6);
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.landing-hero-ctas {
+  display: flex;
+  gap: var(--sp-3);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.landing-hero-btn {
+  min-width: 160px;
+}
+
+@media (max-width: 480px) {
+  .landing-hero-title {
+    font-size: 26px;
+  }
+  .landing-hero-subtitle {
+    font-size: 16px;
+  }
+}
+
+/* ---- Features section -------------------------------------------------- */
+.landing-features {
+  position: relative;
+  z-index: 1;
+  padding: var(--sp-8) var(--sp-4);
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(5, 8, 12, 0.7) 20%,
+    rgba(5, 8, 12, 0.9) 100%
+  );
+}
+
+.landing-features-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.landing-features-title {
+  text-align: center;
+  margin-bottom: var(--sp-6);
+  color: var(--text);
+}
+
+.landing-features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-4);
+}
+
+@media (max-width: 880px) {
+  .landing-features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .landing-features-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.landing-feature-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-soft);
+  border-top-color: var(--card-edge);
+  border-radius: var(--r-3);
+  padding: var(--sp-4);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+.landing-feature-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+}
+
+.landing-feature-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-2);
+  background: var(--accent-soft);
+  color: var(--accent);
+  margin-bottom: var(--sp-3);
+}
+
+.landing-feature-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.landing-feature-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: var(--sp-2);
+}
+
+.landing-feature-desc {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+/* ---- About section ----------------------------------------------------- */
+.landing-about {
+  position: relative;
+  z-index: 1;
+  padding: var(--sp-8) var(--sp-4);
+}
+
+.landing-about-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-4);
+}
+
+@media (max-width: 640px) {
+  .landing-about-inner {
+    grid-template-columns: 1fr;
+  }
+}
+
+.landing-about-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-soft);
+  border-top-color: var(--card-edge);
+  border-radius: var(--r-3);
+  padding: var(--sp-5);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: var(--shadow-sm);
+}
+
+.landing-about-icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-2);
+  background: var(--accent-soft);
+  color: var(--accent);
+  margin-bottom: var(--sp-3);
+}
+
+.landing-about-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.landing-about-title {
+  color: var(--text);
+  margin-bottom: var(--sp-2);
+}
+
+.landing-about-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+/* ---- Footer ----------------------------------------------------------- */
+.landing-footer {
+  position: relative;
+  z-index: 1;
+  padding: var(--sp-6) var(--sp-4);
+  border-top: 1px solid var(--border-soft);
+  background: rgba(5, 8, 12, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.landing-footer-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.landing-footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text);
+  margin-bottom: var(--sp-2);
+}
+
+.landing-footer-icon {
+  width: 22px;
+  height: 22px;
+  color: var(--accent);
+}
+
+.landing-footer-copy {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-bottom: var(--sp-2);
+}
+
+.landing-footer-legal {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+/* ---- Content fade-in animation ---------------------------------------- */
+.landing-hero-inner,
+.landing-features-inner,
+.landing-about-inner,
+.landing-footer-inner {
+  animation: landing-fade-in 0.6s var(--ease);
+}
+
+@keyframes landing-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Staggered animations for feature cards */
+.landing-feature-card {
+  animation: feature-card-in 0.5s var(--ease);
+}
+
+.landing-feature-card:nth-child(1) { animation-delay: 0.1s; }
+.landing-feature-card:nth-child(2) { animation-delay: 0.15s; }
+.landing-feature-card:nth-child(3) { animation-delay: 0.2s; }
+.landing-feature-card:nth-child(4) { animation-delay: 0.25s; }
+.landing-feature-card:nth-child(5) { animation-delay: 0.3s; }
+.landing-feature-card:nth-child(6) { animation-delay: 0.35s; }
+
+@keyframes feature-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .light-rays,
+  .fish,
+  .bubbles::before,
+  .bubbles::after,
+  .landing-hero-inner,
+  .landing-features-inner,
+  .landing-about-inner,
+  .landing-footer-inner,
+  .landing-feature-card {
+    animation: none;
+  }
+}

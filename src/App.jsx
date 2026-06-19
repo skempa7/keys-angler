@@ -2,6 +2,7 @@ import { lazy } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout.jsx'
 import Placeholder from './components/Placeholder.jsx'
+import Landing from './pages/Landing.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import BiteTimes from './pages/BiteTimes.jsx'
 import Calendar from './pages/Calendar.jsx'
@@ -41,8 +42,11 @@ export default function App() {
       <Routes>
         {/* Full-screen takeover — no sidebar/bottom-nav chrome. */}
         <Route path="onwater" element={<OnWater />} />
+        {/* Landing page — full-screen outside Layout */}
+        <Route index element={<Landing />} />
+        <Route path="landing" element={<Landing />} />
         <Route element={<Layout />}>
-          <Route index element={<Dashboard />} />
+          <Route path="app" element={<Dashboard />} />
           <Route path="bite" element={<BiteTimes />} />
           <Route path="calendar" element={<Calendar />} />
           <Route path="plan" element={<TripPlanner />} />
