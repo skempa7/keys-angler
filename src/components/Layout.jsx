@@ -1,27 +1,31 @@
 import { Suspense } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import Sidebar from './Sidebar.jsx'
 import BottomNav from './BottomNav.jsx'
 import StatusBar from './StatusBar.jsx'
 import RewardsToast from './RewardsToast.jsx'
 import Onboarding from './Onboarding.jsx'
 import QuickLogSheet from './QuickLogSheet.jsx'
-import SkyBackground from './SkyBackground.jsx'
 import CommandBar from './CommandBar.jsx'
 import LocationSheet from './LocationSheet.jsx'
-import { IcFish, IcSearch } from './icons.jsx'
+import { IcFish, IcSearch, IcHome } from './icons.jsx'
 
 export default function Layout() {
   return (
     <div className="app">
-      <SkyBackground />
+      {/* Ocean background - same as landing page */}
+      <div className="app-ocean-bg">
+        <div className="ocean-depths" />
+        <div className="light-rays" />
+      </div>
       <Sidebar />
       <header className="topbar">
-        <div className="brand">
+        <Link to="/" className="brand" style={{ textDecoration: 'none' }}>
           <span className="mark"><IcFish width={22} height={22} /></span>
           Keys Angler
-        </div>
+        </Link>
         <div className="spacer" />
+        <Link to="/" className="icon-btn" aria-label="Back to home"><IcHome width={20} height={20} /></Link>
         <button className="icon-btn" onClick={() => window.dispatchEvent(new CustomEvent('ka-search'))} aria-label="Search"><IcSearch width={20} height={20} /></button>
         <StatusBar />
       </header>

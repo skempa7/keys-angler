@@ -1,6 +1,64 @@
 import { Link } from 'react-router-dom'
-import { IcFish, IcCalendar, IcMoon, IcMap, IcShield, IcClock, IcWaves, IcAnchor } from '../components/icons.jsx'
+import {
+  IcFish, IcCalendar, IcMoon, IcMap, IcShield, IcClock, IcWaves, IcAnchor,
+  IcHome, IcBook, IcHook, IcTrophy, IcStar, IcCrab, IcLobster, IcShrimp,
+  IcFlame, IcGrid, IcGear, IcMedal, IcPin, IcKnife, IcDrift, IcSun
+} from '../components/icons.jsx'
 import '../styles/landing.css'
+
+// Navigation sections for the landing page
+const SECTIONS = [
+  {
+    title: 'On the Water',
+    desc: 'Real-time conditions, bite windows, and trip planning',
+    items: [
+      { to: '/app', label: 'Should I Go?', desc: 'Live bite score & conditions', Icon: IcHome },
+      { to: '/onwater', label: 'On-Water Mode', desc: 'Big, glanceable cockpit', Icon: IcWaves },
+      { to: '/drift', label: 'Drift or Anchor', desc: 'Wind & drift calculator', Icon: IcDrift },
+      { to: '/bite', label: 'Bite Times', desc: 'Solunar & tide windows', Icon: IcMoon },
+      { to: '/plan', label: 'Trip Planner', desc: 'Multi-day forecasts', Icon: IcCalendar },
+      { to: '/calendar', label: 'Calendar', desc: 'Month outlook view', Icon: IcClock },
+      { to: '/map', label: 'Map & Spots', desc: 'Interactive fishing map', Icon: IcMap },
+      { to: '/offshore', label: 'Offshore Plan', desc: 'Deep water intel', Icon: IcSun },
+      { to: '/crossings', label: 'Bar Crossings', desc: 'Safety & timing', Icon: IcShield },
+      { to: '/compass', label: 'Compass', desc: 'Heading reference', Icon: IcPin },
+    ],
+  },
+  {
+    title: 'Catch',
+    desc: 'Log your catches, track patterns, and chase slams',
+    items: [
+      { to: '/target', label: 'Target Species', desc: '40+ species intel', Icon: IcFish },
+      { to: '/log', label: 'Catch Log', desc: 'Quick one-tap logging', Icon: IcHook },
+      { to: '/trips', label: 'Trip Log', desc: 'Past trip history', Icon: IcBook },
+      { to: '/slam', label: 'Grand Slam', desc: 'Track your slam', Icon: IcTrophy },
+      { to: '/tournament', label: 'Tournament', desc: 'Competition scoreboard', Icon: IcMedal },
+      { to: '/logbook', label: 'Logbook', desc: 'Full catch journal', Icon: IcStar },
+      { to: '/recap', label: 'Season Recap', desc: 'Year in review', Icon: IcFlame },
+      { to: '/patterns', label: 'Patterns', desc: 'What\'s working now', Icon: IcGrid },
+    ],
+  },
+  {
+    title: 'Harvest',
+    desc: 'Stone crab, lobster, shrimp, and cleaning calculator',
+    items: [
+      { to: '/cleaning', label: 'Cleaning Table', desc: 'Yield calculator', Icon: IcKnife },
+      { to: '/crab', label: 'Stone Crab', desc: 'Season & regs', Icon: IcCrab },
+      { to: '/lobster', label: 'Spiny Lobster', desc: 'Season & regs', Icon: IcLobster },
+      { to: '/shrimp', label: 'Shrimp', desc: 'Bait & harvest', Icon: IcShrimp },
+    ],
+  },
+  {
+    title: 'Yours',
+    desc: 'Your gear, knots, regulations, and settings',
+    items: [
+      { to: '/gear', label: 'Gear & Boat', desc: 'Tackle & setup', Icon: IcAnchor },
+      { to: '/knots', label: 'Knots & Rigs', desc: 'Step-by-step guides', Icon: IcGear },
+      { to: '/regs', label: 'Regulations', desc: 'Size & bag limits', Icon: IcShield },
+      { to: '/settings', label: 'Settings', desc: 'Preferences & data', Icon: IcGear },
+    ],
+  },
+]
 
 export default function Landing() {
   return (
@@ -30,15 +88,15 @@ export default function Landing() {
       {/* Glassmorphic navigation header */}
       <header className="landing-nav">
         <div className="landing-nav-inner">
-          <div className="landing-brand">
+          <Link to="/" className="landing-brand">
             <IcFish className="landing-brand-icon" />
             <span>Keys Angler</span>
+          </Link>
+          <div className="landing-nav-actions">
+            <Link to="/app" className="btn primary landing-nav-cta">
+              <IcWaves width={16} height={16} /> Open App
+            </Link>
           </div>
-          <nav className="landing-nav-links">
-            <a href="#features" className="landing-nav-link">Features</a>
-            <a href="#about" className="landing-nav-link">About</a>
-          </nav>
-          <Link to="/app" className="btn primary landing-nav-cta">Open App</Link>
         </div>
       </header>
 
@@ -55,73 +113,41 @@ export default function Landing() {
             Works offline when you're off the grid.
           </p>
           <div className="landing-hero-ctas">
-            <Link to="/app" className="btn primary lg landing-hero-btn">Launch App</Link>
-            <a href="#features" className="btn ghost landing-hero-btn">Learn More</a>
+            <Link to="/app" className="btn primary lg landing-hero-btn">
+              <IcHome width={20} height={20} /> Launch Dashboard
+            </Link>
+            <Link to="/onwater" className="btn ghost lg landing-hero-btn">
+              <IcWaves width={20} height={20} /> On-Water Mode
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Features section */}
-      <section id="features" className="landing-features">
-        <div className="landing-features-inner">
-          <h2 className="h1 landing-features-title">Everything You Need on the Water</h2>
-          <div className="landing-features-grid">
-            <div className="landing-feature-card">
-              <div className="landing-feature-icon"><IcClock /></div>
-              <h3 className="landing-feature-title">Bite Score</h3>
-              <p className="landing-feature-desc">Real-time fishing quality rating based on tides, moon phase, weather, and seasonal patterns.</p>
+      {/* Full navigation sections */}
+      {SECTIONS.map((section) => (
+        <section key={section.title} className="landing-section">
+          <div className="landing-section-inner">
+            <div className="landing-section-header">
+              <h2 className="landing-section-title">{section.title}</h2>
+              <p className="landing-section-desc">{section.desc}</p>
             </div>
-            <div className="landing-feature-card">
-              <div className="landing-feature-icon"><IcMoon /></div>
-              <h3 className="landing-feature-title">Solunar Windows</h3>
-              <p className="landing-feature-desc">Prime feeding times calculated from moon position and local sunrise/sunset for your GPS location.</p>
-            </div>
-            <div className="landing-feature-card">
-              <div className="landing-feature-icon"><IcCalendar /></div>
-              <h3 className="landing-feature-title">Trip Planner</h3>
-              <p className="landing-feature-desc">Plan ahead with multi-day forecasts and tide predictions. Save spots and share with your crew.</p>
-            </div>
-            <div className="landing-feature-card">
-              <div className="landing-feature-icon"><IcFish /></div>
-              <h3 className="landing-feature-title">Species Intel</h3>
-              <p className="landing-feature-desc">Target-specific tips, seasonal availability, size limits, and tackle recommendations for 40+ species.</p>
-            </div>
-            <div className="landing-feature-card">
-              <div className="landing-feature-icon"><IcMap /></div>
-              <h3 className="landing-feature-title">Offline Maps</h3>
-              <p className="landing-feature-desc">Download chart tiles before you go. Full app functionality without cell service.</p>
-            </div>
-            <div className="landing-feature-card">
-              <div className="landing-feature-icon"><IcShield /></div>
-              <h3 className="landing-feature-title">Regulations</h3>
-              <p className="landing-feature-desc">Quick reference for seasons, slot limits, and bag limits. Know what to keep before you boat it.</p>
+            <div className="landing-tiles-grid">
+              {section.items.map(({ to, label, desc, Icon }) => (
+                <Link key={to} to={to} className="landing-tile">
+                  <div className="landing-tile-icon">
+                    <Icon width={22} height={22} />
+                  </div>
+                  <div className="landing-tile-body">
+                    <div className="landing-tile-label">{label}</div>
+                    <div className="landing-tile-desc">{desc}</div>
+                  </div>
+                  <div className="landing-tile-arrow">→</div>
+                </Link>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* About section */}
-      <section id="about" className="landing-about">
-        <div className="landing-about-inner">
-          <div className="landing-about-card">
-            <div className="landing-about-icon"><IcWaves /></div>
-            <h2 className="h2 landing-about-title">Built for the Keys</h2>
-            <p className="landing-about-text">
-              Keys Angler was built specifically for the Upper Florida Keys—from Key Largo to Long Key.
-              Every feature is tuned for local waters, local species, and local regulations.
-              No generic fishing app can match this level of regional focus.
-            </p>
-          </div>
-          <div className="landing-about-card">
-            <div className="landing-about-icon"><IcAnchor /></div>
-            <h2 className="h2 landing-about-title">Works Offshore</h2>
-            <p className="landing-about-text">
-              No cell tower? No problem. The app caches tide data, weather forecasts, and maps locally.
-              Add your catch with GPS coordinates even when offline—everything syncs when you're back in range.
-            </p>
-          </div>
-        </div>
-      </section>
+        </section>
+      ))}
 
       {/* Footer */}
       <footer className="landing-footer">
@@ -134,7 +160,7 @@ export default function Landing() {
             Offline-first fishing intelligence for the Upper Florida Keys
           </p>
           <p className="landing-footer-legal">
-            &copy; 2024 Keys Angler. Not affiliated with any government agency.
+            &copy; 2024 Keys Angler. Planning aid only — always verify with official sources.
           </p>
         </div>
       </footer>
