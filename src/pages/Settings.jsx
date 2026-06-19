@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { HOME_PORT, APP } from '../config.js'
 import { exportAll, importAll, storageInfo, requestPersist } from '../services/backup.js'
 import { useTheme } from '../hooks/useTheme.js'
+import { useOldSalt } from '../hooks/useOldSalt.js'
 import { useActiveLocation, setActiveLocation, resetActiveLocation } from '../hooks/useActiveLocation.js'
 import { evictSource } from '../services/cache.js'
 import { downloadICS, seasonReminderEvents, gatewayStatus, TOURNAMENTS_SAMPLE } from '../services/phase2.js'
@@ -12,6 +13,7 @@ import { notifyPermission, notifyEnabled, setNotifyEnabled, requestNotify, sendT
 export default function Settings() {
   const loc = useActiveLocation()
   const { theme, setTheme } = useTheme()
+  const { on: oldSalt, toggle: toggleSalt } = useOldSalt()
   const [form, setForm] = useState({ name: loc.name, lat: loc.lat, lon: loc.lon, radiusNm: loc.radiusNm || 30 })
   const [msg, setMsg] = useState('')
   const [notif, setNotif] = useState(() => ({ perm: notifyPermission(), enabled: notifyEnabled() }))
@@ -75,6 +77,15 @@ export default function Settings() {
           <button className={`chip ${theme === 'sun' ? 'active' : ''}`} onClick={() => setTheme('sun')}>Sunlight</button>
           <button className={`chip ${theme === 'auto' ? 'active' : ''}`} onClick={() => setTheme('auto')}>Auto (by daylight)</button>
         </div>
+      </div>
+
+      <div className="card stack-sm">
+        <div className="eyebrow">Old Salt mode</div>
+        <div className="row between" style={{ alignItems: 'center', gap: 12 }}>
+          <span style={{ fontSize: 13.5, color: 'var(--text-dim)' }}>Get your daily go/no-go read from a weathered Keys captain.</span>
+          <button className={`chip ${oldSalt ? 'active' : ''}`} onClick={toggleSalt} aria-pressed={oldSalt} style={{ flex: 'none', whiteSpace: 'nowrap', minWidth: 56 }}>{oldSalt ? 'On' : 'Off'}</button>
+        </div>
+        <p className="faint" style={{ fontSize: 12 }}>Adds a captain&apos;s line to the dashboard. Read the lore anytime in <strong>Fish Tales</strong>.</p>
       </div>
 
       <div className="card stack-sm">

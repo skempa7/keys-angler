@@ -28,6 +28,7 @@ import Crossings from './pages/Crossings.jsx'
 import CleaningTable from './pages/CleaningTable.jsx'
 import DriftAnchor from './pages/DriftAnchor.jsx'
 import OnWater from './pages/OnWater.jsx'
+import FishTales from './pages/FishTales.jsx'
 
 // Code-split the map page so Leaflet stays out of the initial bundle.
 const MapSpots = lazy(() => import('./pages/MapSpots.jsx'))
@@ -68,6 +69,7 @@ export default function App() {
           <Route path="slam" element={<GrandSlam />} />
           <Route path="map" element={<MapSpots />} />
           <Route path="logbook" element={<Logbook />} />
+          <Route path="tales" element={<FishTales />} />
           <Route path="more" element={<More />} />
           <Route path="settings" element={<Settings />} />
           <Route path="*" element={<Placeholder title="Not found" icon="🧭" note="That screen doesn't exist yet." />} />

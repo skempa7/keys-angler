@@ -22,6 +22,9 @@ import { fmtTime, fmtRange, fmtDayShort, relTime, compass, toneColor, weatherLab
 import WindArrow from '../components/WindArrow.jsx'
 import WeatherCard from '../components/WeatherCard.jsx'
 import { IcStorm, IcWaves, IcPin, IcMoon, IcSun } from '../components/icons.jsx'
+import { useOldSalt } from '../hooks/useOldSalt.js'
+import { saltRead } from '../engine/oldSalt.js'
+import { taleOfTheDay } from '../data/fishTales.js'
 
 const MOMENT_ICONS = { IcWaves, IcMoon, IcSun }
 
@@ -29,6 +32,7 @@ export default function Dashboard() {
   const { data, loading, error, refreshing, online, refresh, cal } = useConditions({ days: 5 })
   const activeLoc = useActiveLocation()
   const catches = useLiveQuery(() => db.catches.toArray(), [], [])
+  const { on: oldSalt } = useOldSalt()
   const [tick, setTick] = useState(() => Date.now())
   const [delta, setDelta] = useState(null)
   const looked = useRef(false)
@@ -60,6 +64,8 @@ export default function Dashboard() {
   const playbook = todaysPlaybook({ conditions: data.nowConditions, pressureTrend: data.pressureTrend, tideNow: data.tideNow, solunar: data.today.solunar, stormToday: data.stormToday, sun: data.today.solunar?.sun, now: new Date(tick) })
   const watch = watchList({ data, now: new Date(tick) })
   const tone = nowScore.verdict.tone
+  const saltLine = oldSalt ? saltRead({ score: nowScore.score, data, now: new Date(tick) }) : null
+  const tale = taleOfTheDay(new Date(tick))
   const best = today.windows[0]
   const fetchedAts = Object.values(sources).map((s) => s.fetchedAt).filter(Boolean)
   const lastUpdated = fetchedAts.length ? Math.min(...fetchedAts) : null
@@ -98,6 +104,7 @@ export default function Dashboard() {
             </div>
           )
         })()}
+        {saltLine && <p className="salt-read"><span className="anchor">⚓</span><i>{saltLine}</i></p>}
         {delta && (
           <p className="answer-delta">Since your last look ({relTime(delta.at)}): {delta.phrases.join(' · ')}</p>
         )}
@@ -200,6 +207,17 @@ export default function Dashboard() {
             </div>
           ))}
           <div className="faint" style={{ fontSize: 11 }}>Adjustments vs. a normal day, read from today's conditions — your local knowledge wins ties.</div>
+        </div>
+      )}
+
+      {tale && (
+        <div className="card stack-sm tale-feature">
+          <div className="row between">
+            <div className="eyebrow">Today in Keys fishing</div>
+            <Link to="/tales" className="faint" style={{ fontSize: 12 }}>More tales →</Link>
+          </div>
+          <div className="tale-head"><strong style={{ fontSize: 15 }}>{tale.title}</strong>{tale.tag && <span className="chip sm">{tale.tag}</span>}</div>
+          <p className="muted" style={{ margin: 0, lineHeight: 1.5, fontSize: 14 }}>{tale.body}</p>
         </div>
       )}
 

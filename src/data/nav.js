@@ -32,6 +32,7 @@ export const NAV_GROUPS = [
       { to: '/logbook', label: 'Logbook', Icon: IcStar },
       { to: '/recap', label: 'Season Recap', Icon: IcFlame },
       { to: '/patterns', label: 'Patterns', Icon: IcGrid },
+      { to: '/tales', label: 'Fish Tales', Icon: IcBook },
     ],
   },
   {

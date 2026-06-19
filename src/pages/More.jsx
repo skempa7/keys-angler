@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import {
-  IcMoon, IcShield, IcCrab, IcLobster, IcShrimp, IcAnchor, IcTrophy, IcCog, IcFish, IcChevron,
+  IcMoon, IcShield, IcCrab, IcLobster, IcShrimp, IcAnchor, IcTrophy, IcCog, IcFish, IcChevron, IcBook,
 } from '../components/icons.jsx'
 
 const ITEMS = [
@@ -12,6 +12,7 @@ const ITEMS = [
   { to: '/shrimp', label: 'Shrimp', sub: 'Windows & conditions', Icon: IcShrimp },
   { to: '/gear', label: 'Gear & Boat Locker', sub: 'Your tackle & vessel', Icon: IcAnchor },
   { to: '/slam', label: 'Islamorada Grand Slam', sub: 'Track tarpon+bone+permit', Icon: IcTrophy },
+  { to: '/tales', label: 'Fish Tales', sub: 'Keys lore + Old Salt mode', Icon: IcBook },
   { to: '/settings', label: 'Settings', sub: 'Location, units, data', Icon: IcCog },
 ]
 
