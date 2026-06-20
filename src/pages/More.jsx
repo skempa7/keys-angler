@@ -1,17 +1,15 @@
 import { Link } from 'react-router-dom'
 import {
-  IcMoon, IcShield, IcCrab, IcLobster, IcShrimp, IcAnchor, IcTrophy, IcCog, IcFish, IcChevron, IcBook,
+  IcShield, IcLobster, IcAnchor, IcCog, IcFish, IcChevron, IcBook, IcCalendar,
 } from '../components/icons.jsx'
 
 const ITEMS = [
-  { to: '/bite', label: 'Bite Times', sub: 'Solunar + tide windows', Icon: IcMoon },
+  { to: '/plan', label: 'Plan', sub: 'Trip · calendar · bite times', Icon: IcCalendar },
   { to: '/target', label: 'Target a Species', sub: 'Rig, bait, zone & timing', Icon: IcFish },
+  { to: '/logbook', label: 'Logbook', sub: 'Catches, trips, records, recap', Icon: IcBook },
+  { to: '/harvest', label: 'Harvest', sub: 'Crab, lobster, shrimp, cleaning', Icon: IcLobster },
   { to: '/regs', label: 'Regulations', sub: 'Keep checker + limits', Icon: IcShield },
-  { to: '/crab', label: 'Stone Crab', sub: 'Season + trap placement', Icon: IcCrab },
-  { to: '/lobster', label: 'Spiny Lobster', sub: 'Mini-season + rules', Icon: IcLobster },
-  { to: '/shrimp', label: 'Shrimp', sub: 'Windows & conditions', Icon: IcShrimp },
   { to: '/gear', label: 'Gear & Boat Locker', sub: 'Your tackle & vessel', Icon: IcAnchor },
-  { to: '/slam', label: 'Islamorada Grand Slam', sub: 'Track tarpon+bone+permit', Icon: IcTrophy },
   { to: '/tales', label: 'Fish Tales', sub: 'Keys lore + Old Salt mode', Icon: IcBook },
   { to: '/settings', label: 'Settings', sub: 'Location, units, data', Icon: IcCog },
 ]

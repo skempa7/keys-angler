@@ -3,32 +3,23 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout.jsx'
 import Placeholder from './components/Placeholder.jsx'
 import Dashboard from './pages/Dashboard.jsx'
-import BiteTimes from './pages/BiteTimes.jsx'
-import Calendar from './pages/Calendar.jsx'
-import TripPlanner from './pages/TripPlanner.jsx'
 import Species from './pages/Species.jsx'
 import Regs from './pages/Regs.jsx'
 import More from './pages/More.jsx'
-import StoneCrab from './pages/StoneCrab.jsx'
-import Lobster from './pages/Lobster.jsx'
-import Shrimp from './pages/Shrimp.jsx'
 import CatchLog from './pages/CatchLog.jsx'
 import GearLocker from './pages/GearLocker.jsx'
-import GrandSlam from './pages/GrandSlam.jsx'
 import Settings from './pages/Settings.jsx'
-import Logbook from './pages/Logbook.jsx'
-import TripLog from './pages/TripLog.jsx'
-import Recap from './pages/Recap.jsx'
-import Patterns from './pages/Patterns.jsx'
 import Offshore from './pages/Offshore.jsx'
 import Knots from './pages/Knots.jsx'
-import Tournament from './pages/Tournament.jsx'
 import Compass from './pages/Compass.jsx'
 import Crossings from './pages/Crossings.jsx'
-import CleaningTable from './pages/CleaningTable.jsx'
 import DriftAnchor from './pages/DriftAnchor.jsx'
 import OnWater from './pages/OnWater.jsx'
 import FishTales from './pages/FishTales.jsx'
+// Hubs — several pages folded behind one tabbed surface each.
+import PlanHub from './pages/PlanHub.jsx'
+import LogbookHub from './pages/LogbookHub.jsx'
+import HarvestHub from './pages/HarvestHub.jsx'
 
 // Code-split the map page so Leaflet stays out of the initial bundle.
 const MapSpots = lazy(() => import('./pages/MapSpots.jsx'))
@@ -46,32 +37,36 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="app" element={<Navigate to="/" replace />} />
           <Route path="landing" element={<Navigate to="/" replace />} />
-          <Route path="bite" element={<BiteTimes />} />
-          <Route path="calendar" element={<Calendar />} />
-          <Route path="plan" element={<TripPlanner />} />
+          {/* Hubs */}
+          <Route path="plan" element={<PlanHub />} />
+          <Route path="logbook" element={<LogbookHub />} />
+          <Route path="harvest" element={<HarvestHub />} />
+          {/* Standalone screens */}
           <Route path="target" element={<Species />} />
           <Route path="regs" element={<Regs />} />
           <Route path="log" element={<CatchLog />} />
-          <Route path="trips" element={<TripLog />} />
-          <Route path="recap" element={<Recap />} />
-          <Route path="patterns" element={<Patterns />} />
           <Route path="offshore" element={<Offshore />} />
           <Route path="knots" element={<Knots />} />
-          <Route path="tournament" element={<Tournament />} />
           <Route path="compass" element={<Compass />} />
           <Route path="crossings" element={<Crossings />} />
-          <Route path="cleaning" element={<CleaningTable />} />
           <Route path="drift" element={<DriftAnchor />} />
-          <Route path="crab" element={<StoneCrab />} />
-          <Route path="lobster" element={<Lobster />} />
-          <Route path="shrimp" element={<Shrimp />} />
           <Route path="gear" element={<GearLocker />} />
-          <Route path="slam" element={<GrandSlam />} />
           <Route path="map" element={<MapSpots />} />
-          <Route path="logbook" element={<Logbook />} />
           <Route path="tales" element={<FishTales />} />
           <Route path="more" element={<More />} />
           <Route path="settings" element={<Settings />} />
+          {/* Folded routes → redirect into their hub (keeps deep links & bookmarks alive) */}
+          <Route path="bite" element={<Navigate to="/plan?tab=bite" replace />} />
+          <Route path="calendar" element={<Navigate to="/plan?tab=calendar" replace />} />
+          <Route path="trips" element={<Navigate to="/logbook?tab=trips" replace />} />
+          <Route path="patterns" element={<Navigate to="/logbook?tab=patterns" replace />} />
+          <Route path="recap" element={<Navigate to="/logbook?tab=recap" replace />} />
+          <Route path="slam" element={<Navigate to="/logbook?tab=slam" replace />} />
+          <Route path="tournament" element={<Navigate to="/logbook?tab=tournament" replace />} />
+          <Route path="cleaning" element={<Navigate to="/harvest?tab=cleaning" replace />} />
+          <Route path="crab" element={<Navigate to="/harvest?tab=crab" replace />} />
+          <Route path="lobster" element={<Navigate to="/harvest?tab=lobster" replace />} />
+          <Route path="shrimp" element={<Navigate to="/harvest?tab=shrimp" replace />} />
           <Route path="*" element={<Placeholder title="Not found" icon="🧭" note="That screen doesn't exist yet." />} />
         </Route>
       </Routes>
