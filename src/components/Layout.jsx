@@ -25,7 +25,7 @@ export default function Layout() {
           Keys Angler
         </Link>
         <div className="spacer" />
-        <button className="icon-btn" onClick={() => window.dispatchEvent(new CustomEvent('ka-search'))} aria-label="Search"><IcSearch width={20} height={20} /></button>
+        <button className="icon-btn" onClick={() => window.dispatchEvent(new CustomEvent('ka-search'))} aria-label="Search" title="Search — ⌘K or /"><IcSearch width={20} height={20} /></button>
         <StatusBar />
       </header>
       <main className="content">
