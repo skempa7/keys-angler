@@ -21,6 +21,7 @@ import { useActiveLocation } from '../hooks/useActiveLocation.js'
 import { fmtTime, fmtRange, fmtDayShort, relTime, compass, toneColor, weatherLabel, dayLabel, sstColor } from '../utils/format.js'
 import WindArrow from '../components/WindArrow.jsx'
 import WeatherCard from '../components/WeatherCard.jsx'
+import Collapsible from '../components/Collapsible.jsx'
 import { IcStorm, IcWaves, IcPin, IcMoon, IcSun } from '../components/icons.jsx'
 import { useOldSalt } from '../hooks/useOldSalt.js'
 import { saltRead } from '../engine/oldSalt.js'
@@ -141,15 +142,14 @@ export default function Dashboard() {
       )}
 
       {watch.length > 0 && (
-        <div className="card stack-sm">
-          <div className="eyebrow">Keep in mind today</div>
+        <Collapsible title="Keep in mind today" teaser={`${watch.length} thing${watch.length > 1 ? 's' : ''} to note`}>
           {watch.map((w, i) => (
             <div key={i} className="row" style={{ gap: 8, alignItems: 'baseline', fontSize: 13.5 }}>
               <span style={{ color: toneColor(w.tone === 'bad' ? 'bad' : w.tone === 'caution' ? 'caution' : 'accent'), flex: 'none', fontWeight: 700 }}>•</span>
               <span>{w.text}</span>
             </div>
           ))}
-        </div>
+        </Collapsible>
       )}
 
       <div className="card hero raised">
@@ -171,35 +171,26 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <WeatherCard wx={data.weatherToday} sun={today.solunar.sun} when={data.when} />
+      <Collapsible title="Weather today" teaser={c.weatherCode != null ? weatherLabel(c.weatherCode) : 'forecast'}>
+        <WeatherCard wx={data.weatherToday} sun={today.solunar.sun} when={data.when} />
+      </Collapsible>
 
       {edge && (
-        <div className="card stack-sm">
-          <div className="row between">
-            <div className="eyebrow">Your edge</div>
-            {edge.match && <span className="tag bg-good" style={{ color: 'var(--good)' }}>Pattern ON</span>}
-          </div>
+        <Collapsible title="Your edge" teaser={edge.match ? 'Pattern ON · go' : `you favor the ${edge.pattern.dir} tide`}>
           <div className="h2">{edge.match ? `Your ${edge.pattern.species} bite is dialed in` : `${edge.pattern.species}: you favor the ${edge.pattern.dir} tide`}</div>
           <div className="muted" style={{ fontSize: 13 }}>
             You've boated {edge.pattern.species.toLowerCase()} on the {edge.pattern.dir} tide {edge.pattern.hits} of {edge.pattern.total} times.{' '}
             {edge.currentDir ? (edge.match ? `It's ${edge.currentDir} right now — go.` : `Tide is ${edge.currentDir} now; your window is the ${edge.pattern.dir}.`) : ''}
           </div>
-        </div>
+        </Collapsible>
       )}
 
-      <div className="card stack-sm">
-        <div className="row between">
-          <div className="h2">What's driving the score</div>
-          {cal?.gated
-            ? <span className="tag" style={{ background: 'var(--surface-2)', color: 'var(--good)' }}>Tuned · {cal.n} fish</span>
-            : <span className="faint" style={{ fontSize: 12 }}>tap a factor</span>}
-        </div>
+      <Collapsible title="What's driving the score" teaser={cal?.gated ? `Tuned · ${cal.n} fish` : 'tap to see why'}>
         <FactorList factors={nowScore.factors} />
-      </div>
+      </Collapsible>
 
       {playbook.length > 0 && (
-        <div className="card stack-sm">
-          <div className="eyebrow">Today's playbook · what's different</div>
+        <Collapsible title="Today's playbook" teaser={`${playbook.length} adjustment${playbook.length > 1 ? 's' : ''} vs. a normal day`}>
           {playbook.map((p, i) => (
             <div key={i} className="row" style={{ gap: 10, alignItems: 'baseline' }}>
               <span className="tag" style={{ flex: 'none', minWidth: 74, justifyContent: 'center', background: 'var(--surface-2)', color: toneColor(p.tone === 'good' ? 'good' : p.tone === 'caution' ? 'caution' : 'accent') }}>{p.tag}</span>
@@ -207,26 +198,19 @@ export default function Dashboard() {
             </div>
           ))}
           <div className="faint" style={{ fontSize: 11 }}>Adjustments vs. a normal day, read from today's conditions — your local knowledge wins ties.</div>
-        </div>
+        </Collapsible>
       )}
 
       {tale && (
-        <div className="card stack-sm tale-feature">
-          <div className="row between">
-            <div className="eyebrow">Today in Keys fishing</div>
-            <Link to="/tales" className="faint" style={{ fontSize: 12 }}>More tales →</Link>
-          </div>
+        <Collapsible title="Today in Keys fishing" teaser={tale.title}>
           <div className="tale-head"><strong style={{ fontSize: 15 }}>{tale.title}</strong>{tale.tag && <span className="chip sm">{tale.tag}</span>}</div>
           <p className="muted" style={{ margin: 0, lineHeight: 1.5, fontSize: 14 }}>{tale.body}</p>
-        </div>
+          <Link to="/tales" className="faint" style={{ fontSize: 12 }}>More tales →</Link>
+        </Collapsible>
       )}
 
       {nextWindow && (
-        <div className="card stack-sm">
-          <div className="row between">
-            <div className="eyebrow">Next bite window</div>
-            <span className={`tag bg-good`} style={{ color: 'var(--good)' }}>{nextWindow.strength}</span>
-          </div>
+        <Collapsible title="Next bite window" teaser={`${fmtRange(nextWindow.start, nextWindow.end)} · ${nextWindow.strength}`}>
           <div className="h1">{fmtRange(nextWindow.start, nextWindow.end)}</div>
           <ul className="triggers">
             {nextWindow.triggers.map((t, i) => (
@@ -234,9 +218,10 @@ export default function Dashboard() {
             ))}
           </ul>
           <Link to="/bite" className="btn ghost block">See full day timeline →</Link>
-        </div>
+        </Collapsible>
       )}
 
+      <Collapsible title="Conditions in detail" teaser={`${c.windKn != null ? `${Math.round(c.windKn)} kn ${compass(c.windDir)}` : ''}${c.sstF != null ? ` · ${Math.round(c.sstF)}°F` : ''}${tideNow ? ` · tide ${tideNow.direction}` : ''}`}>
       <div className="grid cols-2">
         <Stat label="Tide now" main={tideNow ? capitalize(tideNow.direction) : '—'}
           sub={tideNow ? tideNow.label.split('·')[1]?.trim() : 'no station data'}
@@ -293,9 +278,9 @@ export default function Dashboard() {
       )}
 
       <HourlyScrubber hourly={today.hourlyScores} nowHour={data.when.getHours()} />
+      </Collapsible>
 
-      <div className="card stack-sm">
-        <div className="eyebrow">Next {outlook.length} days</div>
+      <Collapsible title={`Next ${outlook.length} days`} teaser={`Best ${dn(bestDay)} · ${bestDay.score} ${dayLabel(bestDay.score)}`}>
         <div className="outlook-wrap">
           <div className="outlook">
             {outlook.map((d, i) => (
@@ -315,7 +300,7 @@ export default function Dashboard() {
             <Link to="/calendar" className="chip" style={{ alignSelf: 'flex-start' }}>Open month calendar →</Link>
           </div>
         </div>
-      </div>
+      </Collapsible>
 
       <p className="faint" style={{ fontSize: 12, textAlign: 'center', padding: '0 8px' }}>
         Planning aid only. Tides: NOAA CO-OPS · Marine: Open-Meteo · Warnings: NWS · Sun/moon computed on-device.

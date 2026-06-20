@@ -299,6 +299,19 @@ html[data-theme='sun'] .sidebar { background: var(--scrim); border-right-color: 
 .tale-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .tale-feature { border-left: 3px solid var(--accent); }
 
+/* ---- Collapsible (progressive disclosure) ----------------------------- */
+.collapsible { padding: 0; }
+.collapsible-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  width: 100%; padding: 13px 16px; min-height: 50px;
+  background: none; border: none; color: inherit; cursor: pointer; text-align: left;
+}
+.collapsible-title { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; min-width: 0; }
+.collapsible-teaser { font-size: 12.5px; color: var(--text-faint); overflow-wrap: anywhere; }
+.collapsible-caret { color: var(--text-faint); flex: none; transform: rotate(90deg); transition: transform .18s var(--ease); }
+.collapsible.open .collapsible-caret { transform: rotate(-90deg); color: var(--accent); }
+.collapsible-body { padding: 0 16px 15px; }
+
 .tag {
   display: inline-flex; align-items: center; gap: 5px;
   padding: 3px 9px; border-radius: var(--r-pill); font-size: 11.5px; font-weight: 700;
